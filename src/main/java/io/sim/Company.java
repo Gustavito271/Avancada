@@ -72,10 +72,10 @@ public class Company extends Thread {
     private InputStreamReader inr;
     private BufferedReader bfr;
 
-    private Socket socket_client;
-    private OutputStream ou ;
-    private Writer ouw;
-    private BufferedWriter bfw;
+    private static Socket socket_client;
+    private static OutputStream ou ;
+    private static Writer ouw;
+    private static BufferedWriter bfw;
 
     /**
      * Construtor para a classe Company, a ser utilizada como uma Thread e Server.
@@ -241,9 +241,9 @@ public class Company extends Thread {
     /**
      * Método para se conectar ao Servidor Alpha Bank, já que a empresa (Company) tem uma conta lá.
      */
-    public void conectar() {
+    public static void conectar() {
         try {
-            String IP = Constantes.IP_COMPANY + "";//+ (clientes.size() + 1);
+            String IP = Constantes.IP_COMPANY + "1";//+ (clientes.size() + 1);
 
             socket_client = new Socket(IP, Constantes.porta_AlphaBank);
             ou = socket_client.getOutputStream();
@@ -283,6 +283,8 @@ public class Company extends Thread {
      * @param args
      */
     public static void main (String[] args) {
+        conectar();
+
         Thread thread_company = new Thread(new Runnable() {
             @Override
             public void run() {
