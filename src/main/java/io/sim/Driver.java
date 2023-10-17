@@ -59,22 +59,22 @@ public class Driver extends Thread{
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         try {
-            Thread.sleep(200);
+            Thread.sleep(150);
         } catch (Exception e) {
 
         }
         this.rotas_prontas = carro.retrieveRoutes();
-        System.out.println(rotas_prontas.get(0).getIdRoute());
+        System.out.println(rotas_prontas.get(0).getEdges().split(" ")[0]);
 
-        // try {
-        //     for (int i = 0; i < this.rotas_prontas.size(); i++) {
-        //         this.carro.getSumo().do_job_set(this.rotas_prontas.get(i).addRotaSumo());
-        //     }
-        // } catch (Exception e) {
-        //     System.out.println("Erro ao inserir as rotas no Sumo.\nException: " + e);
-        // }
+        try {
+            for (int i = 0; i < this.rotas_prontas.size(); i++) {
+                this.carro.getSumo().do_job_set(this.rotas_prontas.get(i).addRotaSumo());
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao inserir as rotas no Sumo.\nException: " + e);
+        }
     }
 
 

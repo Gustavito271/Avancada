@@ -39,12 +39,12 @@ import org.w3c.dom.NodeList;
  */
 public class Company extends Thread {
     //Conjunto de rotas: Prontas para serem executas // Em execução // Já foram executadas
-    private ArrayList<Rota> rotas_prontas;
-    private ArrayList<Rota> rotas_em_execucao;
-    private ArrayList<Rota> rotas_executadas;
+    private static ArrayList<Rota> rotas_prontas;
+    private static ArrayList<Rota> rotas_em_execucao;
+    private static ArrayList<Rota> rotas_executadas;
 
     //Arquivo contendo as rotas.
-    private String arquivo = "sim/data/dados2.xml";
+    private static String arquivo = "sim/data/dados2.xml";
 
     //Comunicação Cliente-Servidor
     private static ServerSocket server;
@@ -66,10 +66,6 @@ public class Company extends Thread {
      * Site indicado pelo professor</a>).
      */
     public Company(Socket socket) {
-        //conectar();
-        this.rotas_prontas = new ArrayList<>();
-        this.rotas_em_execucao = new ArrayList<>();
-        this.rotas_executadas = new ArrayList<>();
 
         this.socket = socket;
         try {
@@ -97,12 +93,11 @@ public class Company extends Thread {
 
             System.out.println(msg);
 
-            preencheRotasProntas(listaRotas());
-
-            Thread.sleep(200);
+            Thread.sleep(300);
 
             if (bfr.ready()) {
                 msg = bfr.readLine();
+
                 Criptografia criptografia = new Criptografia();
 
                 String decriptografa = criptografia.decriptografa(msg);
@@ -111,7 +106,6 @@ public class Company extends Thread {
 
                 String comando = (String) jsonFile.getObject("comando");
 
-                System.out.println(comando);
                 if (comando.equals("enviarRotas")) {
                     enviarRotas(jsonFile, comando, bfw);
                 }
@@ -156,13 +150,13 @@ public class Company extends Thread {
      * Pega todas as rotas do arquivo XML entitulado através da variávei {@link Company#arquivo};
      * @return {@link NodeList} contendo todas as rotas presentes no arquivo.
      */
-    private ArrayList<String> listaRotas() {
+    private static ArrayList<String> listaRotas() {
         ArrayList<String> rotas = new ArrayList<>();
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(this.arquivo);
+            Document doc = builder.parse(arquivo);
             NodeList nList = doc.getElementsByTagName("vehicle");
             
             for (int i = 0; i < nList.getLength(); i++) {
@@ -186,7 +180,7 @@ public class Company extends Thread {
      * Preenche a ArrayList de rotas prontas a serem executadas.
      * @param rotas ArrayList contendo as coordenadas (?) (Edges) das rotas escolhidas (total de 900 rotas).
      */
-    private void preencheRotasProntas(ArrayList<String> rotas)  {
+    private static void preencheRotasProntas(ArrayList<String> rotas)  {
         for (int i = 0; i < rotas.size(); i++) {
             String id = (i+1) + "";
             Rota route = new Rota(id, rotas.get(i));
@@ -264,33 +258,16 @@ public class Company extends Thread {
      */
     public static void main (String[] args) {
         conectar();
+        
+        rotas_prontas = new ArrayList<>();
+        rotas_em_execucao = new ArrayList<>();
+        rotas_executadas = new ArrayList<>();
+
+        preencheRotasProntas(listaRotas());
 
         Thread thread_company = new Thread(new Runnable() {
             @Override
             public void run() {
-                /*try {
-                    //Criação do servidor, associado à uma porta, definida acima.
-                    //server = new ServerSocket(Constantes.porta_Company);
-                    server = new ServerSocket(11111);
-
-                    //Criação do ArrayList de clientes do servidor, ou seja, onde todos os motoristas (Driver) se conectarão.
-                    //clientes = new ArrayList<BufferedWriter>();
-
-                    //Execução para aguardar os clientes do servidor se conectarem a ele.
-                    while (true) {
-                        System.out.println("Aguardando conexão");
-                        Socket socket = server.accept();
-                        System.out.println("Conectou na Company!");
-
-                        Thread t = new Company(socket);
-                        t.start();
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("Erro na execução principal da Company.java\nException: " + e);
-                }*/
-                
-            
                 try{
                     //Cria os objetos necessário para instânciar o servidor
                     server = new ServerSocket(Constantes.porta_Company);

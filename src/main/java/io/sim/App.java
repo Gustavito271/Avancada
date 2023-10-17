@@ -26,11 +26,11 @@ public class App {
 		sumo.addOption("start", "1"); // auto-run on GUI show
 		sumo.addOption("quit-on-end", "1"); // auto-close on end
 
-        // try {
-        //     sumo.runServer(12345);
-        // } catch (Exception e) {
-        //     System.out.println("Erro ao iniciar o Sumo.\nException: " + e);
-        // }
+        try {
+            sumo.runServer(12345);
+        } catch (Exception e) {
+            System.out.println("Erro ao iniciar o Sumo.\nException: " + e);
+        }
         
         AlphaBank.main(args);
 
@@ -51,21 +51,23 @@ public class App {
             Driver driver = new Driver(id_driver, IP_driver, car);
             drivers.add(driver);
         }
+        
+        try {
+            for (int i = 0; i < num_drivers; i++) {
+                drivers.get(i).start();
+            }
 
-        drivers.get(0).start();
-        // try {
-        //     for (int i = 0; i < num_drivers; i++) {
-        //         drivers.get(i).start();
-        //         //drivers.get(i).join();
-        //     }
-        // } catch (Exception e) {
-        //     System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
-        // }
+            for (int i = 0; i < num_drivers; i++) {
+                drivers.get(i).join();
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
+        }
         
 
 
-        //EnvSimulator ev = new EnvSimulator();
-        //ev.start();
+        // EnvSimulator ev = new EnvSimulator();
+        // ev.start();
 
     }
 }
