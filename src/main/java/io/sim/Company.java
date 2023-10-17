@@ -38,25 +38,6 @@ import org.w3c.dom.NodeList;
  *      -> Utilizar arquivos JSON e criptografia para a troca de mensagens com clientes/servidor
  */
 public class Company extends Thread {
-    
-    //Sockets de comunicacao;
-    //private Socket socket_servidor;
-    //private Socket socket_cliente;
-
-    //Server para a comunicação
-    //private static ServerSocket server;
-
-    //private String nome;
-
-    //Comunicação Cliente-Servidor
-    /*private OutputStream os;
-    private Writer writer;
-    private BufferedWriter bfw;
-    private OutputStream os_client;
-    private Writer writer_client;*/
-
-    //private static BufferedWriter bfw_client;
-
     //Conjunto de rotas: Prontas para serem executas // Em execução // Já foram executadas
     private ArrayList<Rota> rotas_prontas;
     private ArrayList<Rota> rotas_em_execucao;
@@ -105,7 +86,6 @@ public class Company extends Thread {
      */
     @Override
     public void run() {
-        //conectar();
 
         try{
             String msg;
