@@ -58,6 +58,26 @@ public class Company extends Thread {
     private static Writer ouw;
     private static BufferedWriter bfw;
 
+    private class BotPayment extends Thread{
+        private final double valor_pagamento = 3.25;
+        private String driverID;
+
+        public BotPayment(String driverID) {
+            this.driverID = driverID;
+        }
+
+        @Override
+        public void run() {
+            JsonFile jsonFile = new JsonFile();
+            Criptografia criptografia = new Criptografia();
+
+            jsonFile.writeString("comando", "pagamento");
+            jsonFile.writeString("driverID", driverID);
+
+            
+        }
+    }
+
     /**
      * Construtor para a classe Company, a ser utilizada como uma Thread e Server.
      * 
@@ -91,25 +111,30 @@ public class Company extends Thread {
             //clientes.add(bfw);
             msg = bfr.readLine();
 
-            System.out.println(msg);
+            //System.out.println(msg);
 
             Thread.sleep(300);
 
-            if (bfr.ready()) {
-                msg = bfr.readLine();
+            while (msg != null) {
+                //if (bfr.ready()) {
+                    msg = bfr.readLine();
 
-                Criptografia criptografia = new Criptografia();
+                    Criptografia criptografia = new Criptografia();
 
-                String decriptografa = criptografia.decriptografa(msg);
+                    String decriptografa = criptografia.decriptografa(msg);
 
-                JsonFile jsonFile = new JsonFile(decriptografa);
+                    JsonFile jsonFile = new JsonFile(decriptografa);
 
-                String comando = (String) jsonFile.getObject("comando");
+                    String comando = (String) jsonFile.getObject("comando");
 
-                if (comando.equals("enviarRotas")) {
-                    enviarRotas(jsonFile, comando, bfw);
-                }
+                    if (comando.equals("enviarRotas")) {
+                        enviarRotas(jsonFile, comando, bfw);
+                    } else if (comando.equals("relatorio")) {
+
+                    }
+                //}
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -182,7 +207,7 @@ public class Company extends Thread {
      */
     private static void preencheRotasProntas(ArrayList<String> rotas)  {
         for (int i = 0; i < rotas.size(); i++) {
-            String id = (i+1) + "";
+            String id = "Route_" + (i+1);
             Rota route = new Rota(id, rotas.get(i));
             rotas_prontas.add(route);
         }
@@ -223,33 +248,13 @@ public class Company extends Thread {
             ou = socket_client.getOutputStream();
             ouw = new OutputStreamWriter(ou);
             bfw = new BufferedWriter(ouw);
-            bfw.write("Company"+"\r\n");
+            bfw.write("Company company"+"\r\n");
             bfw.flush();
 
         } catch (Exception e) {
             System.out.println("Erro na conexão com o Servidor Alpha Bank.\nException: " + e);
         }
         
-    }
-
-    /***
-     * Método usado para enviar mensagem para todos os clients
-     * Acho que não será usado!!!!!!!!! Pelo menos não assim.
-     * @param bwSaida do tipo BufferedWriter
-     * @param msg do tipo String
-     * @throws IOException
-     */
-    public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException {
-
-        BufferedWriter bwS;
-
-        /*for(BufferedWriter bw : clientes){
-            bwS = (BufferedWriter)bw;
-            if(!(bwSaida == bwS)){
-                bw.write(nome + " -> " + msg+"\r\n");
-                bw.flush();
-            }
-        }*/
     }
 
     /**
@@ -273,9 +278,9 @@ public class Company extends Thread {
                     server = new ServerSocket(Constantes.porta_Company);
             
                 while(true){
-                    System.out.println("Aguardando conexão");
+                    //System.out.println("Aguardando conexão");
                     Socket con = server.accept();
-                    System.out.println("Conectou Company");
+                    //System.out.println("Conectou Company");
                     
                     Company company = new Company(con);
                     company.start();

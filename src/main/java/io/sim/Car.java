@@ -9,12 +9,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import de.tudresden.sumo.cmd.Route;
 import de.tudresden.sumo.cmd.Vehicle;
+import de.tudresden.sumo.objects.SumoColor;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 /*
@@ -27,13 +25,23 @@ import it.polito.appeal.traci.SumoTraciConnection;
  *      -> A cada km rodado o atributo deve ser decrementado ao equivalente consumido (CONCLUÍDO ?)
  *      -> Quando estiver com 3 litros, deve ocorrer o abastecimento
  *      -> Só quem pode incrementar o "fuelTank" é a FuelStation
- *      -> 
  */
 public class Car extends Vehicle implements Runnable{
     private double fuel_tank = 10;
     private String ID;
     private SumoTraciConnection sumo;
     private String IP;
+
+    //Parâmetros do Carro no Sumo
+    private final int fuelType = 2;                 // 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
+    private final int fuelPreferential = 2;         // 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
+    private final double fuelPrice = 3.40;
+    private final int personCapacity = 1;
+    private final int personNumber = 1;
+	private final long acquisitionRate = 500;
+    private SumoColor color;
+
+    private int numero_edges;
 
     private Thread thread = new Thread(this);
 
@@ -47,12 +55,13 @@ public class Car extends Vehicle implements Runnable{
         this.ID = ID;
         this.IP = IP;
         this.sumo = sumo;
+        this.color = genColor();
 
         conectar();
     }
 
     /**
-     * Conexão com o Servidor (Company)
+     * Conexão com o Servidor (Company).
      */
     public void conectar() {
         try {
@@ -72,6 +81,10 @@ public class Car extends Vehicle implements Runnable{
         
     }
 
+    /**
+     * Método para "pegar" as rotas a serem executadas pelo Driver (owner - dono) do carro em questão.
+     * @return {@link ArrayList} contendo as rotas a serem executadas pelo Driver/Car.
+     */
     public ArrayList<Rota> retrieveRoutes() {
         enviarComandoServer();
 
@@ -134,7 +147,7 @@ public class Car extends Vehicle implements Runnable{
     }
 
     /**
-     * Inicia a execução da thread do Car
+     * Inicia a execução da thread.
      */
     public void startThread() {
         thread.start();
@@ -143,9 +156,16 @@ public class Car extends Vehicle implements Runnable{
     @Override
     public void run() {
 
+        
+        enviarRelatorio();
         try {
-            Thread.sleep(200);
-        } catch (Exception e) {
+            while(true) {
+                //System.out.println(sumo.do_job_get(super.getRouteIndex(ID)));
+                System.out.println(sumo.do_job_get(super.getDistance(ID)));
+                Thread.sleep(500);
+            }
+            
+        } catch (Exception e){
 
         }
         
@@ -164,15 +184,87 @@ public class Car extends Vehicle implements Runnable{
 
     }
 
+    private void enviarRelatorio() {
+        JsonFile jsonFile = new JsonFile();
+
+        jsonFile.writeString("comando", "relatorio");
+        jsonFile.writeString(Constantes.KEY_ID_CAR, this.ID);
+        jsonFile.writeString(Constantes.KEY_ID_CAR, this.ID);
+    }
+
+    /**
+     * Método para acionar a Rota atual do carro no Sumo.
+     * @param idRoute {@link String} contendo a ID da rota a ser executada.
+     */
+    public void acionarRota(String idRoute) {
+        try {
+            sumo.do_job_set(super.addFull(this.ID,
+                                            idRoute,
+                                            "DEFAULT_VEHTYPE",
+                                            "now", 								//depart  
+                                            "0", 								//departLane 
+                                            "0", 								//departPos 
+                                            "0",								//departSpeed
+                                            "current",							//arrivalLane 
+                                            "max",								//arrivalPos 
+                                            "current",							//arrivalSpeed 
+                                            "",									//fromTaz 
+                                            "",									//toTaz 
+                                            "", 								//line 
+                                            this.personCapacity,
+                                            this.personNumber
+                                            ));
+
+            sumo.do_job_set(super.setColor(this.ID, this.color));
+
+        } catch (Exception e) {
+            System.out.println("Erro ao iniciar a Rota para o Carro " + this.ID + ".\nException: " + e);
+        }
+    }
+
+    /**
+     * Gera uma cor "aleatória" para o Carro a ser inserido.
+     * @return {@link SumoColor} contendo a cor do carro a ser "utilizada.
+     */
+    private SumoColor genColor() {
+        Random random = new Random();
+
+        int color1 = random.nextInt(255);
+        int color2 = random.nextInt(255);
+        int color3 = random.nextInt(255);
+
+        return new SumoColor(color1, color2, color3, 126);
+    }
+
+    /**
+     * Método GET para o atributo {@link Car#sumo}.
+     * @return {@link SumoTraciConnection} contendo o objeto para manipulação.
+     */
     public SumoTraciConnection getSumo() {
         return this.sumo;
     }
     
+    /**
+     * Método GET para o atributo {@link Car#fuel_tank}.
+     * @return {@link Double} contendo o valor contido no atributo.
+     */
     public double getFuel_Tank() {
         return fuel_tank;
     }
 
+    /**
+     * Método SET para o atributo {@link Car#fuel_tank}.
+     * @param fuel_tank {@link Double} contendo o valor a ser inserido no atributo.
+     */
     public void setFuel_Tank(double fuel_tank) {
         this.fuel_tank = fuel_tank;
+    }
+
+    /**
+     * Método SET para o atributo {@link Car#numero_edges}.
+     * @param numero_edges {@link Integer} contendo o valor a ser inserido no atributo.
+     */
+    public void setNumEdges(int numero_edges) {
+        this.numero_edges = numero_edges;
     }
 }

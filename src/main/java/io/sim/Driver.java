@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoStringList;
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -59,22 +60,27 @@ public class Driver extends Thread{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         try {
             Thread.sleep(150);
         } catch (Exception e) {
 
         }
         this.rotas_prontas = carro.retrieveRoutes();
-        System.out.println(rotas_prontas.get(0).getEdges().split(" ")[0]);
 
         try {
             for (int i = 0; i < this.rotas_prontas.size(); i++) {
-                this.carro.getSumo().do_job_set(this.rotas_prontas.get(i).addRotaSumo());
+                carro.getSumo().do_job_set(this.rotas_prontas.get(i).addRotaSumo());
             }
+
+            carro.setNumEdges(this.rotas_prontas.get(0).getNumeroEdges());
+            carro.acionarRota(this.rotas_prontas.get(0).getIdRoute());
         } catch (Exception e) {
             System.out.println("Erro ao inserir as rotas no Sumo.\nException: " + e);
         }
+
+        //Inicializa o envio de reports do carro.
+        this.carro.startThread();
     }
 
 
@@ -90,7 +96,7 @@ public class Driver extends Thread{
             os = socket_cliente.getOutputStream();
             writer = new OutputStreamWriter(os);
             bfw = new BufferedWriter(writer);
-            bfw.write("Conectou: " + this.ID +"\r\n");
+            bfw.write(this.ID + " driver" +"\r\n");
             bfw.flush();
         } catch (Exception e) {
             System.out.println("Erro na conexão com o Servidor Alpha Bank.\nException: " + e);

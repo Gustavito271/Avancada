@@ -13,7 +13,6 @@ public class EnvSimulator extends Thread{
 
     }
 
-
     public void run(){
 
 		/* SUMO */
@@ -54,7 +53,6 @@ public class EnvSimulator extends Thread{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
     }
 
 }

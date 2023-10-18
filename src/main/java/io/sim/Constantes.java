@@ -10,4 +10,6 @@ public class Constantes {
     public static final String IP_CAR = "127.0.1.";
 
     public static final String IP_DRIVER = "127.0.2.";
+
+    public static final String KEY_ID_CAR = "IDcar";
 }

@@ -22,7 +22,8 @@ import java.util.ArrayList;
  */
 public class AlphaBank extends Thread{
 
-    private ArrayList<Account> accounts;
+    //ArrayList contendo todas as Accounts dos clientes do banco.
+    private static ArrayList<Account> accounts;
 
     //ArrayList contendo os clientes do banco (AlphaBank).
     private static ArrayList<BufferedWriter> clientes = new ArrayList<>();
@@ -33,8 +34,6 @@ public class AlphaBank extends Thread{
     private InputStream is;
     private InputStreamReader isr;
     private BufferedReader bfr;
-
-    String nome;
 
     public AlphaBank(Socket socket) {
         this.socket_servidor = socket;
@@ -57,12 +56,35 @@ public class AlphaBank extends Thread{
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
             clientes.add(bfw);
-            nome = msg = bfr.readLine();
 
-            System.out.println(msg);
+            msg = bfr.readLine();
+
+            String dados[] = msg.split(" ");
+
+            addAccount(dados[0], dados[1]);
+
+            //System.out.println(dados[1]);
 
             Thread.sleep(200);
-        
+
+            while (msg != null) {
+                msg = bfr.readLine();
+
+                Criptografia criptografia = new Criptografia();
+
+                String decriptografa = criptografia.decriptografa(msg);
+
+                JsonFile jsonFile = new JsonFile(decriptografa);
+
+                String comando = (String) jsonFile.getObject("comando");
+
+                if (comando.equals("consultar")) {
+
+                } else if (comando.equals("pagar")) {
+                    
+                }
+            }   
+
             }catch (Exception e) {
             e.printStackTrace();
     
@@ -77,10 +99,31 @@ public class AlphaBank extends Thread{
     }
 
     /**
+     * Método para buscar uma Account no sistema.
+     * @param login {@link String} contendo o login do usuário.
+     * @param senha {@link String} contendo a senha do usuário.
+     * @return {@link Account} contendo a Account procurada // null caso nenhuma Account seja encontrada.
+     */
+    private Account searchAccount(String login, String senha) {
+        for (int i = 0; i< accounts.size(); i++) {
+            Account account = accounts.get(i);
+            if (account.getLogin().equals(login) && account.getSenha().equals(senha)) {
+                return account;
+            }
+        }
+
+        System.out.println("Nenhuma Account com esse login/senha foi encontrada.");
+        return null;
+    }
+
+    /**
      * Método principal de execução da classe. Inicia o servidor do AlphaBank.
      * @param args
      */
     public static void main (String[] args) {
+        //Inicializa a ArrayList de accounts.
+        accounts = new ArrayList<>();
+
         Thread thread_alphaBank = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -94,9 +137,9 @@ public class AlphaBank extends Thread{
 
                     //Execução para aguardar os clientes do servidor se conectarem a ele.
                     while (true) {
-                        System.out.println("Aguardando conexão");
+                        //System.out.println("Aguardando conexão");
                         Socket socket = server.accept();
-                        System.out.println("Conectou no AlphaBank!");
+                        //System.out.println("Conectou no AlphaBank!");
 
                         Thread thread = new AlphaBank(socket);
                         thread.start();

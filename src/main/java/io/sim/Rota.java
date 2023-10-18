@@ -4,11 +4,14 @@ import de.tudresden.sumo.objects.SumoStringList;
 import de.tudresden.sumo.util.SumoCommand;
 
 public class Rota {
-    //ID da Rota em questão
+    //ID da Rota em questão.
     private String id_route;
 
-    //Conjunto de edges de uma rota em uma 
+    //Conjunto de edges de uma rota em uma única String.
     private String edges;
+
+    //Número de edges presentes na rota.
+    private int numero_edges;
 
     /**
      * Construtor da classe em questão, considerando o ID da rota, bem como suas Edges (única String contendo as edges).
@@ -18,6 +21,33 @@ public class Rota {
     public Rota(String id_route, String edges) {
         this.id_route = id_route;
         this.edges = edges;
+    }
+
+    /**
+     * Separa as Edges em um objeto do tipo {@link SumoStringList}.
+     * @return {@link SumoStringList} contendo todas as edges "separadas".
+     */
+    private SumoStringList separaEdges() {
+        SumoStringList edges = new SumoStringList();
+        edges.clear();
+
+        String[] aux = this.edges.split(" ");
+
+        this.numero_edges = aux.length;
+
+        for (int i = 0; i < aux.length; i++) {
+            edges.add(aux[i]);
+        }
+
+        return edges;
+    }
+
+    /**
+     * Adiciona a rota ao Sumo com base em sua ID e suas Edges.
+     * @return {@link SumoCommand} contendo a "informação necessária" para a real adição da Rota.
+     */
+    public SumoCommand addRotaSumo() {
+        return new SumoCommand(198, 128, this.id_route, separaEdges());
     }
 
     /**
@@ -37,27 +67,10 @@ public class Rota {
     }
 
     /**
-     * Separa as Edges em um objeto do tipo {@link SumoStringList}.
-     * @return {@link SumoStringList} contendo todas as edges "separadas".
+     * Método GET para o atributo {@link Rota#numero_edges}.
+     * @return {@link Integer} contendo o número de Edges em uma rota.
      */
-    private SumoStringList separaEdges() {
-        SumoStringList edges = new SumoStringList();
-        edges.clear();
-
-        String[] aux = this.edges.split(" ");
-
-        for (int i = 0; i < aux.length; i++) {
-            edges.add(aux[i]);
-        }
-
-        return edges;
-    }
-
-    /**
-     * Adiciona a rota ao Sumo com base em sua ID e suas Edges.
-     * @return {@link SumoCommand} contendo a "informação necessária" para a real adição da Rota.
-     */
-    public SumoCommand addRotaSumo() {
-        return new SumoCommand(198, 128, this.id_route, separaEdges());
+    public int getNumeroEdges() {
+        return this.numero_edges;
     }
 }

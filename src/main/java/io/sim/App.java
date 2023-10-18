@@ -1,7 +1,6 @@
 package io.sim;
 
 import java.util.ArrayList;
-import io.sim.Rota;
 
 import it.polito.appeal.traci.SumoTraciConnection;
 
@@ -14,6 +13,8 @@ public class App {
 
     //Número de motoristas (e consequentemente o número de carros)
     private static final int num_drivers = 100;
+
+    private static boolean controle_sumo = true;
 
     public static void main( String[] args ) {
 
@@ -52,19 +53,34 @@ public class App {
             drivers.add(driver);
         }
         
-        try {
-            for (int i = 0; i < num_drivers; i++) {
-                drivers.get(i).start();
-            }
+        drivers.get(0).start();
 
-            for (int i = 0; i < num_drivers; i++) {
-                drivers.get(i).join();
+        // try {
+        //     for (int i = 0; i < num_drivers; i++) {
+        //         drivers.get(i).start();
+        //     }
+
+        //     for (int i = 0; i < num_drivers; i++) {
+        //         drivers.get(i).join();
+        //     }
+        // } catch (Exception e) {
+        //     System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
+        // }
+
+        //Executa o timestep do Sumo!
+        while (controle_sumo) {
+            try {
+                sumo.do_timestep();
+                Thread.sleep(500);
+
+                if (sumo.isClosed()) {
+                    controle_sumo = false;
+                    System.out.println("SUMO is closed...");
+                }
+            } catch (Exception e) {
+                System.out.println("Erro no do_timestep.\nException: " + e);
             }
-        } catch (Exception e) {
-            System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
         }
-        
-
 
         // EnvSimulator ev = new EnvSimulator();
         // ev.start();

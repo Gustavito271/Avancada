@@ -10,13 +10,37 @@ public class JsonFile {
     //Objeto a ser manipulado, contendo todas as informaçõea a serem enviadas.
     private JSONObject object;
 
+    //Key "padrão" para a ID da rota.
     private final String key_ID_rotas = "idRotas";
 
+    //Key "padrão" para as edges da rota.
     private final String key_edges_rotas = "edgeRotas";
 
-    private final String key_car = "carro";
+    //Key "padrão" para a ID do carro.
+    private final String key_id_carro = "IDcar";
 
+    //Key "padrão" para a velocidade do carro.
+    private final String key_speed = "speed";
 
+    //Key "padrão" para a distância percorrida.
+    private final String key_distance = "distance";
+
+    //Key "padrão" para o consumo de combustível.
+    private final String key_fuel_consumption = "fuelConsumption";
+
+    //Key "padrão" para o tipo de combustível.
+    private final String key_fuel_type = "fuelType";
+
+    //Key "padrão" para a emissão de CO2.
+    private final String key_co2 = "co2";
+
+    //Key "padrão" para a longitude.
+    private final String key_long = "longitude";
+
+    //Key "padrão" para a latitude.
+    private final String key_lat = "latitude";
+
+    //----------------------------------------------------------------------------------------------------------------
     /**
      * Construtor da classe em questão, inicializando o atributo {@link JsonFile#object}.
      */
@@ -33,13 +57,50 @@ public class JsonFile {
         object = new JSONObject(JSONObject_as_String);
     }
 
+
     /**
-     * Escreve um objeto do tipo {@link Car} dentro do arquivo JSON.
-     * @param key {@link String} contendo a chave a ser utilizada para inserir o objeto.
-     * @param car {@link Car} contendo o objeto a ser inserido.
+     * Escreve todos os parâmetros necessários no relatório gerencial requisitado.
+     * @param IDcar {@link String} contendo a ID do carro.
+     * @param IDroute {@link String} contendo a ID da rota sendo executada.
+     * @param speed {@link Double} contendo a velocidade atual do carro.
+     * @param distance {@link Double} contendo a distância percorrida pelo carro.
+     * @param fuel_consumption {@link Double} contendo o consumo de combustível.
+     * @param fuel_type {@link String} contendo o tipo de combustível utilizado.
+     * @param CO2_emission {@link Double} contendo a emissão de CO2.
+     * @param latitude {@link Double} contendo a coordenada de latitude.
+     * @param longitude {@link Double} contendo a coordenada de longitude.
      */
-    public void writeCar(String key, Car car) {
-        object.put(key, car);
+    public void escreverRelatorio(String IDcar, String IDroute, double speed, double distance, double fuel_consumption, String fuel_type, double CO2_emission, double latitude, double longitude) {
+        object.put("comando", "relatorio");
+        object.put(key_id_carro, IDcar);
+        object.put(key_ID_rotas, IDroute);
+        object.put(key_speed, speed);
+        object.put(key_distance, distance);
+        object.put(key_fuel_consumption, fuel_consumption);
+        object.put(key_fuel_type, fuel_type);
+        object.put(key_co2, CO2_emission);
+        object.put(key_long, longitude);
+        object.put(key_lat, latitude);
+    }
+
+    /**
+     * "Pega" todos os dados presentes no arquivo JSON do relatório e armazena em um {@link ArrayList}
+     * @return {@link ArrayList} contendo todos os dados para o relatório.
+     */
+    public ArrayList<Object> pegarRelatorio() {
+        ArrayList<Object> arrayList = new ArrayList<>();
+        
+        arrayList.add(object.get(key_id_carro));
+        arrayList.add(object.get(key_ID_rotas));
+        arrayList.add(object.get(key_speed));
+        arrayList.add(object.get(key_distance));
+        arrayList.add(object.get(key_fuel_consumption));
+        arrayList.add(object.get(key_fuel_type));
+        arrayList.add(object.get(key_co2));
+        arrayList.add(object.get(key_long));
+        arrayList.add(object.get(key_lat));
+
+        return arrayList;
     }
 
     /**
