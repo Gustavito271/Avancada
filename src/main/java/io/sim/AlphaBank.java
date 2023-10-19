@@ -7,23 +7,22 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-/*
- * "Banco", devendo conter as seguintes características:
- *      -> Ser um Servidor (CONCLUÍDO)
- *      -> Controlar as Accounts
- *      -> Controlar o saldo das Accounts
- *      -> Controlar o acesso às Accounts (não devendo ter acessos simultâneos)
- *      -> Registrar o Timestamp das trocas de mensagens
- *      -> Utilizar arquivos JSON e criptografia para a troca de mensagens com clientes/servidor
+/**
+ * Classe que visa simular o funcionamento de um banco (AlphaBank), o qual deve controlar o saldo de Contas-Corrente
+ * (Account), bem como realizar pagamentos.
  */
 public class AlphaBank extends Thread{
 
     //ArrayList contendo todas as Accounts dos clientes do banco.
     private static ArrayList<Account> accounts;
+
+    //Flag para analisar se o banco está realizando operações em alguma Account.
+    private static boolean is_consulting = false;
 
     //ArrayList contendo os clientes do banco (AlphaBank).
     private static ArrayList<BufferedWriter> clientes = new ArrayList<>();
@@ -35,21 +34,23 @@ public class AlphaBank extends Thread{
     private InputStreamReader isr;
     private BufferedReader bfr;
 
+    /**
+     * Construtor do Servidor.
+     * @param socket {@link Socket} contendo a instância de comunicação cliente/servidor.
+     */
     public AlphaBank(Socket socket) {
         this.socket_servidor = socket;
         try {
             is = socket.getInputStream();
             isr = new InputStreamReader(is);
             bfr = new BufferedReader(isr);
-
-            //conectar();
         } catch (Exception e) {
             System.out.println("Erro no construtor\nException: " + e);
         }
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         try{
             String msg;
             OutputStream ou =  this.socket_servidor.getOutputStream();
@@ -63,12 +64,20 @@ public class AlphaBank extends Thread{
 
             addAccount(dados[0], dados[1]);
 
-            //System.out.println(dados[1]);
+            //System.out.println(msg);
 
             Thread.sleep(200);
 
             while (msg != null) {
                 msg = bfr.readLine();
+
+                while (is_consulting) {
+                    try {
+                        wait();
+                    } catch (Exception e) {
+                        System.out.println("Falha no Wait do ConsultarSaldo.\nException: " + e);
+                    }
+                }
 
                 Criptografia criptografia = new Criptografia();
 
@@ -76,12 +85,12 @@ public class AlphaBank extends Thread{
 
                 JsonFile jsonFile = new JsonFile(decriptografa);
 
-                String comando = (String) jsonFile.getObject("comando");
+                String comando = jsonFile.getComando();
 
                 if (comando.equals("consultar")) {
-
+                    consultarSaldo(jsonFile, bfw);
                 } else if (comando.equals("pagar")) {
-                    
+                    realizarPagamento(jsonFile, bfw);          
                 }
             }   
 
@@ -91,10 +100,87 @@ public class AlphaBank extends Thread{
         }
     }
 
+    /**
+     * Faz a consulta do saldo da conta requisitada
+     * @param jsonFile {@link JsonFile} contendo o objeto para utilização dos métodos.
+     * @param bfw {@link BufferedWriter} contendo o destinatário para retorno.
+     */
+    private synchronized void consultarSaldo(JsonFile jsonFile, BufferedWriter bfw) {
+        is_consulting = true;
 
-    //Talvez Private com a comunicação cliente/servidor
-    public void addAccount(String login, String senha) {
-        Account account = new Account(login, senha);
+        ArrayList<String> dados = jsonFile.recebeConsultaSaldo();
+
+        String login = dados.get(0);
+        String senha = dados.get(1);
+
+        Account account = searchAccount(login, senha, false);
+
+        //if (account != null) {
+
+        jsonFile.escreveSaldo(account.getSaldo());
+
+        String json = jsonFile.getJSONAsString();
+
+        Criptografia criptografia = new Criptografia();
+
+        try {
+            bfw.write(criptografia.criptografa(json) +"\r\n");
+            bfw.flush();
+        } catch (Exception e) {
+            System.out.println("Erro na escrita da consulta do saldo.\nException: " + e);
+        }
+        //}
+
+        is_consulting = false;
+
+        notifyAll();
+    }
+
+    /**
+     * Realiza o pagamento destinado a uma conta específica (podendo ser um {@link Driver} ou a {@link FuelStation}).
+     * @param jsonFile {@link JsonFile} contendo o objeto para utilização dos métodos.
+     * @param bfw {@link BufferedWriter} contendo o destinatário para retorno.
+     */
+    private synchronized void realizarPagamento(JsonFile jsonFile, BufferedWriter bfw) {
+        is_consulting = true;
+
+        ArrayList<Object> dadosJSON = jsonFile.recebeDadosPagamento();
+
+        String login = (String) dadosJSON.get(0);
+        String senha = (String) dadosJSON.get(1);
+        String destino = (String) dadosJSON.get(2);
+        double valor = ((BigDecimal) dadosJSON.get(3)).doubleValue();
+
+        //System.out.print(destino + " ");
+
+        Account account_owner = searchAccount(login, senha, false);
+        Account account_destino = searchAccount(destino, null, true);
+
+        account_owner.saque(valor);
+        account_destino.deposito(valor);
+
+        //System.out.println(account_destino.getSaldo());
+        
+        is_consulting = false;
+        notify();
+    }
+    /**
+     * Adiciona uma conta de um cliente no ArrayList {@link AlphaBank#accounts}.
+     * @param login {@link String} contendo o login do usuário.
+     * @param senha {@link String} contendo o login
+     */
+    private void addAccount(String login, String senha) {
+        double saldo_inicial;
+        
+        if (login.equalsIgnoreCase("Company")) {
+            saldo_inicial = 10000000;
+        } else if (login.equalsIgnoreCase("FuelStation")) {
+            saldo_inicial = 0;
+        } else {
+            saldo_inicial = 100;
+        }
+        
+        Account account = new Account(login, senha, saldo_inicial);
         accounts.add(account);
     }
 
@@ -102,13 +188,18 @@ public class AlphaBank extends Thread{
      * Método para buscar uma Account no sistema.
      * @param login {@link String} contendo o login do usuário.
      * @param senha {@link String} contendo a senha do usuário.
+     * @param is_paying {@link Boolean} contendo uma identificação para saber se é pagamento ou não.
      * @return {@link Account} contendo a Account procurada // null caso nenhuma Account seja encontrada.
      */
-    private Account searchAccount(String login, String senha) {
+    private Account searchAccount(String login, String senha, boolean is_paying) {
         for (int i = 0; i< accounts.size(); i++) {
             Account account = accounts.get(i);
-            if (account.getLogin().equals(login) && account.getSenha().equals(senha)) {
-                return account;
+            if (account.getLogin().equals(login)) {
+                if (is_paying) {
+                    return account;
+                } else if (account.getSenha().equals(senha)) {
+                    return account;
+                }
             }
         }
 

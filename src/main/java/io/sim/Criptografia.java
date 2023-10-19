@@ -69,20 +69,6 @@ public class Criptografia {
         return chave;
     }
 
-    public static void main(String[] args){
-        Criptografia otp = new Criptografia();
-        String menssagem = "hello";
-        String chave = otp.genKey(menssagem.length());
-        String msgCriptografada = otp.criptografa(menssagem);
-        String msgDecriptografada = otp.decriptografa(msgCriptografada);
-
-        System.out.println("Menssagem: "+menssagem);
-        System.out.println("Chave: "+chave);
-        System.out.println("Mensagem Criptografada: "+msgCriptografada);
-        System.out.println("Mensagem Decriptografada: "+msgDecriptografada);
-
-    }
-
     private int chartoInt(char c) {
         return (int) c;
     }

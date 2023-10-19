@@ -5,43 +5,40 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/*
- * "Empresa", devendo possuir as seguintes características:
- *      -> Ser uma Thread (CONCLUÍDO)
- *      -> Ser um Servidor (CONCLUÍDO)
- *      -> Ser um Cliente para o AlphaBank (conectar-se à ele) (CONCLUÍDO)
- *      -> Conter uma ArrayList<Route> de rotas a serem executadas (CONCLUÍDO)
- *      -> Conter uma ArrayList<Route> de rotas em execução (CONCLUÍDO)
- *      -> Conter uma ArrayList<Route> de rotas executadas (CONCLUÍDO)
- *      -> Conter uma classe BotPayment, que deve ser uma Thread
- *      -> Pagar R$3.25 por km/rodado
- *      -> Utilizar arquivos JSON e criptografia para a troca de mensagens com clientes/servidor
+/**
+ * Classe que simula o funcionamento de uma Empresa (Company), sendo responsável por gerir um conjunto
+ * de rotas, bem como realizar pagamento aos motoristas (Driver) por km rodado.
+ * 
+ * @author Gustavo Henrique Tostes
+ * @version 1.0
+ * @since 02/10/2023
  */
 public class Company extends Thread {
     //Conjunto de rotas: Prontas para serem executas // Em execução // Já foram executadas
     private static ArrayList<Rota> rotas_prontas;
     private static ArrayList<Rota> rotas_em_execucao;
     private static ArrayList<Rota> rotas_executadas;
+    private String idRotaAtual = "";
+
+    //Parâmetros de acesso à Account.
+    private static final String login = "Company";
+    private static final String senha = "company";
 
     //Arquivo contendo as rotas.
     private static String arquivo = "sim/data/dados2.xml";
@@ -52,18 +49,28 @@ public class Company extends Thread {
     private InputStream in;
     private InputStreamReader inr;
     private BufferedReader bfr;
-
     private static Socket socket_client;
     private static OutputStream ou ;
     private static Writer ouw;
     private static BufferedWriter bfw;
 
+    private double distancia_paga = 0;
+
+    //------------------------------------------------------------------------------------------------------
+    
+    /**
+     * Classe para a realização de pagamentos aos motoristas no valor de R$3.25 por km rodado.
+     */
     private class BotPayment extends Thread{
         private final double valor_pagamento = 3.25;
         private String driverID;
+        private String login;
+        private String senha;
 
-        public BotPayment(String driverID) {
+        public BotPayment(String driverID, String login, String senha) {
             this.driverID = driverID;
+            this.login = login;
+            this.senha = senha;
         }
 
         @Override
@@ -71,10 +78,16 @@ public class Company extends Thread {
             JsonFile jsonFile = new JsonFile();
             Criptografia criptografia = new Criptografia();
 
-            jsonFile.writeString("comando", "pagamento");
-            jsonFile.writeString("driverID", driverID);
+            jsonFile.escreverDadosPagamento(this.login, this.senha, this.driverID, this.valor_pagamento);
 
-            
+            String json = jsonFile.getJSONAsString();
+
+            try {
+                bfw.write(criptografia.criptografa(json) +"\r\n");
+                bfw.flush();
+            } catch (Exception e) {
+                System.out.println("Erro na escrita do Json com o pagamento para o AlphaBank.\nException: " + e);
+            }
         }
     }
 
@@ -108,7 +121,6 @@ public class Company extends Thread {
             OutputStream ou =  this.socket.getOutputStream();
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
-            //clientes.add(bfw);
             msg = bfr.readLine();
 
             //System.out.println(msg);
@@ -116,23 +128,21 @@ public class Company extends Thread {
             Thread.sleep(300);
 
             while (msg != null) {
-                //if (bfr.ready()) {
-                    msg = bfr.readLine();
+                msg = bfr.readLine();
 
-                    Criptografia criptografia = new Criptografia();
+                Criptografia criptografia = new Criptografia();
+                String decriptografa = criptografia.decriptografa(msg);
+                JsonFile jsonFile = new JsonFile(decriptografa);
 
-                    String decriptografa = criptografia.decriptografa(msg);
+                String comando = jsonFile.getComando();
 
-                    JsonFile jsonFile = new JsonFile(decriptografa);
-
-                    String comando = (String) jsonFile.getObject("comando");
-
-                    if (comando.equals("enviarRotas")) {
-                        enviarRotas(jsonFile, comando, bfw);
-                    } else if (comando.equals("relatorio")) {
-
-                    }
-                //}
+                if (comando.equals("enviarRotas")) {
+                    enviarRotas(jsonFile, bfw);
+                } else if (comando.equals("relatorio")) {
+                    relatorioCarro(jsonFile);
+                } else if (comando.equals("conexao")) {
+                    Thread.sleep(300);
+                }
             }
             
         } catch (Exception e) {
@@ -141,15 +151,109 @@ public class Company extends Thread {
     }
 
     /**
+     * Recebe o relatório de um carro e faz as operações necessárias a partir das informações enviadas
+     * pelo mesmo.
+     * @param jsonFile {@link JsonFile} contendo o objeto a ser manipulado para a retirada de informações.
+     */
+    private void relatorioCarro(JsonFile jsonFile) {
+        ArrayList<Object> arrayList = jsonFile.pegarRelatorio();
+
+        long time = (long) arrayList.get(0);
+        String idCarro = (String) arrayList.get(1);
+        String idRota = (String) arrayList.get(2);
+        double speed = convertNumero(arrayList.get(3));
+        double distancia = convertNumero(arrayList.get(4));
+        double consumo = convertNumero(arrayList.get(5));
+        String tipoComb = (String) arrayList.get(6);
+        double co2 = convertNumero(arrayList.get(7));
+        double longi = convertNumero(arrayList.get(8));
+        double lat = convertNumero(arrayList.get(9));
+
+        if (!this.idRotaAtual.equals(idRota)) {
+            if (!this.idRotaAtual.equals("")) {
+                rotas_executadas.add(searchRouteEmExecucao(this.idRotaAtual));
+            }
+            rotas_em_execucao.add(searchRoutePronta(idRota));
+            this.idRotaAtual = idRota;
+        }
+
+        //System.out.println(distancia + "//" + distancia_paga);
+
+        if (distancia < distancia_paga) {
+            distancia_paga = 0;
+        } else {
+            if (distancia - distancia_paga >= 1) {
+                System.out.println(idCarro);
+                distancia_paga = distancia;
+                String idDriver = "Driver_" + idCarro.split("_")[1];
+                BotPayment botPayment = new BotPayment(idDriver, login, senha);
+                botPayment.start();
+            }
+        }
+
+        //Gerar Excel com os dados!
+    }
+
+    /**
+     * Método de conversão de número, considerando que a chamada do arquivo JSON altera o tipo dos números
+     * enviados (double -> int -> BigDecimal);
+     * @param numero {@link Object} contendo o tipo de número recebido
+     * @return {@link Double} contendo o número no tipo "adequado".
+     */
+    private double convertNumero(Object numero) {
+        try {
+            return (double) numero;
+        } catch (Exception e) {
+            try {
+                return (Integer) numero;
+            } catch (Exception e2) {
+                return ((BigDecimal) numero).doubleValue();
+            }
+        }
+    }
+
+    /**
+     * Procura por rotas prontas (a serem executadas) no atributo {@link Company#rotas_prontas}.
+     * @param idRota {@link String} contendo o ID da rota a ser procurada.
+     * @return {@link Rota} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
+     */
+    private Rota searchRoutePronta(String idRota) {
+        for (int i = 0; i < rotas_prontas.size(); i++) {
+            if (rotas_prontas.get(i).getIdRoute().equals(idRota)) {
+                return rotas_prontas.get(i);
+            }
+        }
+
+        System.out.println("Rota não encontrada.");
+        return null;
+    }
+
+    /**
+     * Procura por rotas prontas (a serem executadas) no atributo {@link Company#rotas_em_execucao}.
+     * @param idRota {@link String} contendo o ID da rota a ser procurada.
+     * @return {@link Rota} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
+     */
+    private Rota searchRouteEmExecucao(String idRota) {
+        for (int i = 0; i < rotas_em_execucao.size(); i++) {
+            if (rotas_em_execucao.get(i).getIdRoute().equals(idRota)) {
+                return rotas_em_execucao.get(i);
+            }
+        }
+
+        System.out.println("Rota não encontrada.");
+        return null;
+    }
+
+    /**
      * Envia as rotas solicitadas por um {@link Car} específico.
      * @param jsonFile {@link JsonFile} contendo a instância recebida através da comunicação.
      * @param comando {@link Strind} contendo o comando utilizado ("comando").
      * @param bfw {@link BufferedWriter} contendo quem enviou a mensagem (para retorno).
      */
-    private void enviarRotas(JsonFile jsonFile, String comando, BufferedWriter bfw) {
+    private void enviarRotas(JsonFile jsonFile, BufferedWriter bfw) {
         ArrayList<Rota> rotas = new ArrayList<>();
 
-        String[] id = jsonFile.getStringFromJSONObject("carID").split("_");
+        String[] id = jsonFile.receberRequestRoutes().split("_");
         
         int num = Integer.parseInt(id[1]);
 
@@ -157,9 +261,9 @@ public class Company extends Thread {
             rotas.add(rotas_prontas.get(i));
         }
 
-        jsonFile.writeRoutes(rotas);
+        jsonFile.escreveRoutes(rotas);
 
-        String json = jsonFile.getJSONObjectAsString();
+        String json = jsonFile.getJSONAsString();
         
         Criptografia criptografia = new Criptografia();
 
@@ -167,7 +271,7 @@ public class Company extends Thread {
             bfw.write(criptografia.criptografa(json) +"\r\n");
             bfw.flush();
         } catch (Exception e) {
-
+            System.out.println("Erro na escrita do Json de volta para o Carro.\nException: " + e);
         }
     }
 
@@ -248,7 +352,7 @@ public class Company extends Thread {
             ou = socket_client.getOutputStream();
             ouw = new OutputStreamWriter(ou);
             bfw = new BufferedWriter(ouw);
-            bfw.write("Company company"+"\r\n");
+            bfw.write(login + " " + senha + "\r\n");
             bfw.flush();
 
         } catch (Exception e) {

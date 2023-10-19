@@ -11,5 +11,13 @@ public class Constantes {
 
     public static final String IP_DRIVER = "127.0.2.";
 
+    public static final String IP_FUEL_STATION = "127.0.3.1";
+
     public static final String KEY_ID_CAR = "IDcar";
+
+    public static final String comando_consulta = "consultar";
+
+    public static final String comando_saldo = "saldoAtual";
+
+    public static final String comando_conexao = "conexao";
 }

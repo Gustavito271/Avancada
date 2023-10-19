@@ -35,6 +35,8 @@ public class App {
         
         AlphaBank.main(args);
 
+        FuelStation.main(args);
+
         Company.main(args);
 
         //Inicialização de todos os motoristas e seus carros.
@@ -54,6 +56,19 @@ public class App {
         }
         
         drivers.get(0).start();
+        // drivers.get(1).start();
+        // drivers.get(2).start();
+        // drivers.get(3).start();
+
+        // try {
+
+        // drivers.get(0).join();
+        // drivers.get(1).join();
+        // drivers.get(2).join();
+        // drivers.get(3).join();
+        // } catch (Exception e) {
+
+        // }
 
         // try {
         //     for (int i = 0; i < num_drivers; i++) {
