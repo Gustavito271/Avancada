@@ -195,7 +195,7 @@ public class ExportaExcel extends Thread{
                     if (result == JOptionPane.YES_OPTION) {
 
                         try {
-                            FileOutputStream out = new FileOutputStream(new File("C:/Users/User/Documents/Relatorios/Dados Gerenciais.xlsx"));
+                            FileOutputStream out = new FileOutputStream(new File(Constantes.path_arquivo));
                             workbook.write(out);
                             out.close();
                         } catch (Exception e) {
