@@ -257,6 +257,10 @@ public class JsonFile {
         object.put(key_senha, senha);
     }
 
+    /**
+     * Recebimento dos dados indicando que uma conexão foi realizada.
+     * @return {@link String}[] contendo os dados de login/senha (AlphaBank) // Mensagens "aleatórias" (Company)
+     */
     public String[] receberConexao() {
         String[] dados = new String[2];
 
