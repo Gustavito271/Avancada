@@ -31,7 +31,6 @@ public class Driver extends Thread{
     private boolean abastecendo = false;
 
     //Atributos relativos à Account.
-    private String login;
     private final String senha = "driver";
 
     //Comunicação Cliente-Servidor
@@ -89,7 +88,7 @@ public class Driver extends Thread{
      */
     public Driver(String ID, String IP, Car carro) {
         this.IP = IP;
-        this.ID = this.login = ID;
+        this.ID = ID;
         this.carro = carro;
 
         this.rotas_executadas = new ArrayList<>();
@@ -99,14 +98,6 @@ public class Driver extends Thread{
 
     @Override
     public void run() {
-        try {
-            //Thread.sleep(1000);
-        } catch (Exception e) {
-
-        }
-
-        //consultarSaldo();
-
         this.rotas_prontas = carro.retrieveRoutes();
 
         try {
@@ -119,21 +110,31 @@ public class Driver extends Thread{
 
 
         while (this.rotas_executadas.size() < 9) {
-            carro.setNumEdges(this.rotas_prontas.get(0).getNumeroEdges());
+            try {
+                Thread.sleep(500);
+            } catch (Exception e) {
+
+            }
+
             carro.acionarRota(this.rotas_prontas.get(0).getIdRoute());
 
             this.rota_em_execucao = this.rotas_prontas.get(0);
             this.rotas_prontas.remove(0);
 
             //Inicializa o envio de reports do carro.
-            this.carro.startThread();
             this.carro.setTerminoURota(false);
+            this.carro.startThread();
 
             while (!this.carro.getTerminouRota()) {
+                if (this.carro.getFlag()) {
+                
+                    this.carro.stopThread();
+                    this.carro.startThread();
+                }
                 verificaCombustível();
             }
 
-            System.out.println("chegou aq");
+            this.carro.stopThread();
             this.rotas_executadas.add(this.rota_em_execucao);
         }
         
@@ -161,7 +162,7 @@ public class Driver extends Thread{
                     litros = saldo/5.87;
                 }
 
-                BotPayment botPayment = new BotPayment(this.login, this.senha, litros);
+                BotPayment botPayment = new BotPayment(this.ID, this.senha, litros);
                 botPayment.start();
 
                 FuelStation fuelStation = new FuelStation(carro, litros, true);
@@ -190,7 +191,12 @@ public class Driver extends Thread{
             os = socket_cliente.getOutputStream();
             writer = new OutputStreamWriter(os);
             bfw = new BufferedWriter(writer);
-            bfw.write(this.ID + " driver" +"\r\n");
+
+            JsonFile jsonFile = new JsonFile();
+            jsonFile.enviarConexao(this.ID, this.senha);
+            String criptografa = new Criptografia().criptografa(jsonFile.getJSONAsString());
+
+            bfw.write(criptografa +"\r\n");
             bfw.flush();
         } catch (Exception e) {
             System.out.println("Erro na conexão com o Servidor Alpha Bank.\nException: " + e);
@@ -205,7 +211,7 @@ public class Driver extends Thread{
     private double consultarSaldo() {
         JsonFile jsonFile = new JsonFile();
 
-        jsonFile.escreveConsultaSaldo(this.login, this.senha);
+        jsonFile.escreveConsultaSaldo(this.ID, this.senha);
 
         String msgJson = jsonFile.getJSONAsString();
 

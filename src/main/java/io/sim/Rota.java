@@ -3,6 +3,14 @@ package io.sim;
 import de.tudresden.sumo.objects.SumoStringList;
 import de.tudresden.sumo.util.SumoCommand;
 
+/**
+ * Classe para armazenar os dados referentes à uma das 900 rotas necessárias para o ambiente.
+ * Conta com ID e as edges ("pontos").
+ * 
+ * @author Gustavo Henrique Tostes
+ * @version 1.0
+ * @since 02/10/2023
+ */
 public class Rota {
     //ID da Rota em questão.
     private String id_route;
@@ -13,6 +21,8 @@ public class Rota {
     //Número de edges presentes na rota.
     private int numero_edges;
 
+    //-------------------------------------------------------------------------------------------------------------------
+    
     /**
      * Construtor da classe em questão, considerando o ID da rota, bem como suas Edges (única String contendo as edges).
      * @param id_route {@link String} contendo o ID da rota.

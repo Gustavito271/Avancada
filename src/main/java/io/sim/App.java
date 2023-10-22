@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 /**
- * Atribuição de Endereços de IP:
- *      -> 192.168.1.X = Endereços para os DRIVERS (Motoristas)
- *      -> 192.168.2.X = Endereços para os CARS (Carros)
+ * Classe main para incialização dos serviços.
  */
 public class App {
 
@@ -37,6 +35,13 @@ public class App {
 
         FuelStation.main(args);
 
+        ExportaExcel.main(args);
+
+        ExportaExcel excel = new ExportaExcel();
+        excel.start();
+
+        System.out.println("veio aq");
+
         Company.main(args);
 
         //Inicialização de todos os motoristas e seus carros.
@@ -55,50 +60,44 @@ public class App {
             drivers.add(driver);
         }
         
-        drivers.get(0).start();
+        // drivers.get(0).start();
         // drivers.get(1).start();
-        // drivers.get(2).start();
+        // drivers.get(32).start();
         // drivers.get(3).start();
 
-        // try {
-
-        // drivers.get(0).join();
-        // drivers.get(1).join();
-        // drivers.get(2).join();
-        // drivers.get(3).join();
-        // } catch (Exception e) {
-
-        // }
-
-        // try {
-        //     for (int i = 0; i < num_drivers; i++) {
-        //         drivers.get(i).start();
-        //     }
-
-        //     for (int i = 0; i < num_drivers; i++) {
-        //         drivers.get(i).join();
-        //     }
-        // } catch (Exception e) {
-        //     System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
-        // }
-
-        //Executa o timestep do Sumo!
-        while (controle_sumo) {
-            try {
-                sumo.do_timestep();
-                Thread.sleep(500);
-
-                if (sumo.isClosed()) {
-                    controle_sumo = false;
-                    System.out.println("SUMO is closed...");
-                }
-            } catch (Exception e) {
-                System.out.println("Erro no do_timestep.\nException: " + e);
-            }
+        
+        for (int i = 0; i < num_drivers; i++) {
+            drivers.get(i).start();
         }
 
-        // EnvSimulator ev = new EnvSimulator();
-        // ev.start();
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                while (controle_sumo) {
+                    try {
+                        sumo.do_timestep();
+                        Thread.sleep(500);
 
+                        if (sumo.isClosed()) {
+                            controle_sumo = false;
+                            System.out.println("SUMO is closed...");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Erro no do_timestep.\nException: " + e);
+                    }
+                }
+            }
+        });
+
+        thread.start();
+
+        try {
+            for (int i = 0; i < num_drivers; i++) {
+                drivers.get(i).join();
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
+        }
+
+        //ExportaExcel.setFlag(false);
     }
 }

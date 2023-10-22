@@ -121,11 +121,11 @@ public class Company extends Thread {
             OutputStream ou =  this.socket.getOutputStream();
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
-            msg = bfr.readLine();
+            //msg = bfr.readLine();
+            msg = "inicio";
 
             //System.out.println(msg);
-
-            Thread.sleep(300);
+            //Thread.sleep(300);
 
             while (msg != null) {
                 msg = bfr.readLine();
@@ -136,11 +136,11 @@ public class Company extends Thread {
 
                 String comando = jsonFile.getComando();
 
-                if (comando.equals("enviarRotas")) {
+                if (comando.equals(Constantes.comando_rotas)) {
                     enviarRotas(jsonFile, bfw);
-                } else if (comando.equals("relatorio")) {
+                } else if (comando.equals(Constantes.comando_relatorio)) {
                     relatorioCarro(jsonFile);
-                } else if (comando.equals("conexao")) {
+                } else if (comando.equals(Constantes.comando_conexao)) {
                     Thread.sleep(300);
                 }
             }
@@ -158,16 +158,9 @@ public class Company extends Thread {
     private void relatorioCarro(JsonFile jsonFile) {
         ArrayList<Object> arrayList = jsonFile.pegarRelatorio();
 
-        long time = (long) arrayList.get(0);
         String idCarro = (String) arrayList.get(1);
         String idRota = (String) arrayList.get(2);
-        double speed = convertNumero(arrayList.get(3));
         double distancia = convertNumero(arrayList.get(4));
-        double consumo = convertNumero(arrayList.get(5));
-        String tipoComb = (String) arrayList.get(6);
-        double co2 = convertNumero(arrayList.get(7));
-        double longi = convertNumero(arrayList.get(8));
-        double lat = convertNumero(arrayList.get(9));
 
         if (!this.idRotaAtual.equals(idRota)) {
             if (!this.idRotaAtual.equals("")) {
@@ -183,7 +176,6 @@ public class Company extends Thread {
             distancia_paga = 0;
         } else {
             if (distancia - distancia_paga >= 1) {
-                System.out.println(idCarro);
                 distancia_paga = distancia;
                 String idDriver = "Driver_" + idCarro.split("_")[1];
                 BotPayment botPayment = new BotPayment(idDriver, login, senha);
@@ -192,6 +184,9 @@ public class Company extends Thread {
         }
 
         //Gerar Excel com os dados!
+        ExportaExcel excel = new ExportaExcel();
+        excel.escreveRelatorio(arrayList);
+        //excel.start();
     }
 
     /**
@@ -352,13 +347,52 @@ public class Company extends Thread {
             ou = socket_client.getOutputStream();
             ouw = new OutputStreamWriter(ou);
             bfw = new BufferedWriter(ouw);
-            bfw.write(login + " " + senha + "\r\n");
+
+            JsonFile jsonFile = new JsonFile();
+            jsonFile.enviarConexao(login, senha);
+            String criptografa = new Criptografia().criptografa(jsonFile.getJSONAsString());
+
+            bfw.write(criptografa + "\r\n");
             bfw.flush();
 
         } catch (Exception e) {
             System.out.println("Erro na conexão com o Servidor Alpha Bank.\nException: " + e);
         }
         
+    }
+
+    /**
+     * Seta uma rota que está sendo executada por um carro como em execução.
+     * @param idRoute {@link String} contendo o ID da rota em execução.
+     */
+    public static void setRotaEmExecucao(String idRoute) {
+        for (int i = 0; i < rotas_prontas.size(); i++) {
+            if (idRoute.equals(rotas_prontas.get(i).getIdRoute())) {
+                Rota rota = rotas_prontas.get(i);
+
+                rotas_em_execucao.add(rota);
+                rotas_prontas.remove(rota);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * Seta uma rota que está já foi executada por um carro como executada.
+     * @param idRoute {@link String} contendo o ID da rota em execução.
+     */
+    public static void setRotaExecutada(String idRoute) {
+        for (int i = 0; i < rotas_em_execucao.size(); i++) {
+            if (idRoute.equals(rotas_em_execucao.get(i).getIdRoute())) {
+                Rota rota = rotas_em_execucao.get(i);
+
+                rotas_executadas.add(rota);
+                rotas_em_execucao.remove(rota);
+
+                return;
+            }
+        }
     }
 
     /**

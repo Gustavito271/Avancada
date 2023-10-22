@@ -5,7 +5,9 @@ C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\Edge.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\TLState.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ReadGlobalTravelTimeQuery.java
+C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\Criptografia.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\Itinerary.java
+C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\testandoArquivo.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\protocol\ResponseMessage.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\AddVehicleQuery.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\TraciObject.java
@@ -14,7 +16,6 @@ C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\de\
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\TraCITest.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ChangeObjectStateQuery.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\TraCIServerTest.java
-C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\Route.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\PositionConvertionTest.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\protocol\RequestMessage.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ReadTLStateQuery.java
@@ -51,6 +52,7 @@ C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ChangeTargetQuery.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\RoadmapPositionTest.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\RemoveVehicleQuery.java
+C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\ExportaExcel.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\NonzeroBeginTimeTest.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\MeMeDetector.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\RemoteTraCITest.java
@@ -62,6 +64,7 @@ C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\POI.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\test\java\it\polito\appeal\traci\test\HttpDownloadTest.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\Query.java
+C:\Users\User\Documents\fac\Avançada\sim\src\main\java\io\sim\Rota.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ObjectFactory.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\ChangeMaxSpeedQuery.java
 C:\Users\User\Documents\fac\Avançada\sim\src\main\java\sim\traci4j\src\java\it\polito\appeal\traci\AddRouteQuery.java

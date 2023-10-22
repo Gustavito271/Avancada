@@ -58,15 +58,16 @@ public class AlphaBank extends Thread{
             BufferedWriter bfw = new BufferedWriter(ouw);
             clientes.add(bfw);
 
-            msg = bfr.readLine();
+            //msg = bfr.readLine();
+            msg = "inicio";
 
-            String dados[] = msg.split(" ");
+            // String dados[] = msg.split(" ");
 
-            addAccount(dados[0], dados[1]);
+            // addAccount(dados[0], dados[1]);
 
-            //System.out.println(msg);
+            // //System.out.println(msg);
 
-            Thread.sleep(200);
+            // Thread.sleep(200);
 
             while (msg != null) {
                 msg = bfr.readLine();
@@ -80,17 +81,22 @@ public class AlphaBank extends Thread{
                 }
 
                 Criptografia criptografia = new Criptografia();
-
+                
                 String decriptografa = criptografia.decriptografa(msg);
-
+                
                 JsonFile jsonFile = new JsonFile(decriptografa);
 
                 String comando = jsonFile.getComando();
 
-                if (comando.equals("consultar")) {
+                if (comando.equals(Constantes.comando_consulta)) {
                     consultarSaldo(jsonFile, bfw);
-                } else if (comando.equals("pagar")) {
+                } else if (comando.equals(Constantes.comando_pagar)) {
                     realizarPagamento(jsonFile, bfw);          
+                } else if (comando.equals(Constantes.comando_conexao)) {
+                    String dados[] = jsonFile.receberConexao();
+                    addAccount(dados[0], dados[1]);
+                    //System.out.println(msg);
+                    Thread.sleep(200);
                 }
             }   
 
@@ -117,7 +123,9 @@ public class AlphaBank extends Thread{
 
         //if (account != null) {
 
-        jsonFile.escreveSaldo(account.getSaldo());
+        jsonFile.escreveSaldo(account.getSaldo_atual());
+
+        account.startThread();
 
         String json = jsonFile.getJSONAsString();
 
@@ -151,19 +159,31 @@ public class AlphaBank extends Thread{
         String destino = (String) dadosJSON.get(2);
         double valor = ((BigDecimal) dadosJSON.get(3)).doubleValue();
 
-        //System.out.print(destino + " ");
+        //System.out.println(destino);
 
         Account account_owner = searchAccount(login, senha, false);
         Account account_destino = searchAccount(destino, null, true);
 
-        account_owner.saque(valor);
+        account_owner.saque(valor, destino);
+        account_owner.startThread();
+
         account_destino.deposito(valor);
+        account_destino.startThread();
+
+        while (!account_owner.getCompletouTransacao() && !account_destino.getCompletouTransacao()) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+
+            }
+        }
 
         //System.out.println(account_destino.getSaldo());
         
         is_consulting = false;
         notify();
     }
+    
     /**
      * Adiciona uma conta de um cliente no ArrayList {@link AlphaBank#accounts}.
      * @param login {@link String} contendo o login do usuário.

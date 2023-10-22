@@ -20,4 +20,10 @@ public class Constantes {
     public static final String comando_saldo = "saldoAtual";
 
     public static final String comando_conexao = "conexao";
+
+    public static final String comando_relatorio = "relatorio";
+
+    public static final String comando_rotas = "enviarRotas";
+
+    public static final String comando_pagar = "pagar";
 }

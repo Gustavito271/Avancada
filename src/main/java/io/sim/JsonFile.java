@@ -256,4 +256,13 @@ public class JsonFile {
         object.put(key_login, login);
         object.put(key_senha, senha);
     }
+
+    public String[] receberConexao() {
+        String[] dados = new String[2];
+
+        dados[0] = (object.getString(key_login));
+        dados[1] = (object.getString(key_senha));
+
+        return dados;
+    }
 }

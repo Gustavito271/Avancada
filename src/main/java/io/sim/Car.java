@@ -14,6 +14,7 @@ import java.util.Random;
 import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoColor;
 import de.tudresden.sumo.objects.SumoPosition2D;
+import de.tudresden.sumo.objects.SumoStringList;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 /**
@@ -29,8 +30,6 @@ public class Car extends Vehicle implements Runnable{
     //Parâmetros do Carro no Sumo
     private SumoTraciConnection sumo;
     private final int fuelType = 2;                 // 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
-    private final int fuelPreferential = 2;         // 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
-    private final double fuelPrice = 3.40;
     private final int personCapacity = 1;
     private final int personNumber = 1;
 	private final long acquisitionRate = 500;
@@ -39,8 +38,7 @@ public class Car extends Vehicle implements Runnable{
 
     //Parâmetros do Carro como objeto.
     private String ID;
-    private double fuel_tank = 3.1;
-    private int numero_edges;
+    private double fuel_tank = 10;
     private double distancia_percorrida = 0;
     private boolean terminou_rota = false;
 
@@ -53,6 +51,8 @@ public class Car extends Vehicle implements Runnable{
     private Writer writer;
     private BufferedWriter bfw;
     private String IP;
+
+    private boolean flag_try_catch = false;
 
     /**
      * Construtor da classe.
@@ -68,6 +68,13 @@ public class Car extends Vehicle implements Runnable{
         this.tipo_combustivel = combustivel();
 
         conectar();
+    }
+
+    /**
+     * Construtor default para testes.
+     */
+    public Car() {
+
     }
 
     /**
@@ -162,41 +169,73 @@ public class Car extends Vehicle implements Runnable{
      * Inicia a execução da thread.
      */
     public void startThread() {
+        thread = new Thread(this);
         thread.start();
     }
 
+    /**
+     * Para a exeecução da thread.
+     */
+    public void stopThread() {
+        thread.interrupt();
+    }
+
+    /**
+     * Execução da thread, contendo a captação de dados do veículo (e envio para o Servidor (Company)), além de
+     * verificaçã de combustível
+     */
     @Override
     public void run() {
         try {
-            int edge_atual = (Integer) sumo.do_job_get(super.getRouteIndex(ID));
-            //Thread.sleep(500);
-
             boolean is_stopped = false;
+            boolean flag = true, carregou_carros = false;
 
-            while (edge_atual != numero_edges) {
-                double consumo = converteConsumo((double) sumo.do_job_get(super.getFuelConsumption(ID)), is_stopped);
+            SumoStringList arrayList = (SumoStringList) sumo.do_job_get(super.getIDList());
 
-                enviarRelatorio(consumo, is_stopped);
-
-                this.fuel_tank -= consumo;
-
-                //System.out.println("Gasolina: " + this.fuel_tank);
-
-                if (fuel_tank <= 3) {
-                    sumo.do_job_set(super.setSpeed(ID, 0));
-                    if ((double) sumo.do_job_get(super.getSpeed(ID)) == 0) {
-                        is_stopped = true;
-                    }
-                } else {
-                    is_stopped = false;
+            while (!carregou_carros) {
+                if (arrayList.size() != 0 && arrayList.contains(this.ID)) {
+                    carregou_carros = true;
                 }
 
-                //Atualiza a edge atual.
-                edge_atual = (Integer) sumo.do_job_get(super.getRouteIndex(ID));
-                Thread.sleep(100);
+                arrayList = (SumoStringList) sumo.do_job_get(super.getIDList());
+            }
+
+            while (flag) {
+                //if (arrayList.size() != 0) {
+                    arrayList = (SumoStringList) sumo.do_job_get(super.getIDList());
+
+                    if (arrayList.size() != 0 && arrayList.contains(this.ID)) {
+                        double consumo = converteConsumo((double) sumo.do_job_get(super.getFuelConsumption(ID)), is_stopped);
+
+                        enviarRelatorio(consumo, is_stopped);
+
+                        this.fuel_tank -= consumo;
+
+                        //System.out.println("Gasolina: " + this.fuel_tank);
+
+                        if (fuel_tank <= 3) {
+                            sumo.do_job_set(super.setSpeed(ID, 0));
+                            if ((double) sumo.do_job_get(super.getSpeed(ID)) == 0) {
+                                is_stopped = true;
+                            }
+                        } else {
+                            if (is_stopped) {
+                                is_stopped = false;
+                                sumo.do_job_set(super.setSpeed(ID, 20.60));
+                            }
+                        }
+
+                        //Atualiza a edge atual.
+                        //edge_atual = (Integer) sumo.do_job_get(super.getRouteIndex(ID));
+                        Thread.sleep(acquisitionRate);
+                    } else {
+                        flag = false;
+                    }
+                //}            
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("EH AQUI " + e);
+            flag_try_catch = true;
         }
 
         terminou_rota = true;
@@ -254,7 +293,7 @@ public class Car extends Vehicle implements Runnable{
             }
 
         } catch (Exception e) {
-            System.out.println("Erro ao captar os dados do veículo.\nException: " + e);
+            System.out.println(ID + " Erro ao captar os dados do veículo.\nException: " + e);
         }
     }
 
@@ -264,7 +303,7 @@ public class Car extends Vehicle implements Runnable{
      * @param dist {@link Double} contendo a distância percorrida durante o último timestep em dm (decâmetro)
      * @return {@link Double} contendo a distância total percorrida pelo veículo.
      */
-    private double calculaDistancia(double dist) {
+    public double calculaDistancia(double dist) {
         double dist_metros = dist/100;
 
         return dist_metros;
@@ -369,6 +408,10 @@ public class Car extends Vehicle implements Runnable{
         return this.terminou_rota;
     }
 
+    public boolean getFlag() {
+        return this.flag_try_catch;
+    }
+
     /**
      * Método SET para o atributo {@link Car#terminou_rota}.
      * @param terminou_rota {@link Boolean} contendo o valor lógico a ser inserido no atributo.
@@ -383,13 +426,5 @@ public class Car extends Vehicle implements Runnable{
      */
     public void abastecerFuelTank(double fuel_tank) {
         this.fuel_tank += fuel_tank;
-    }
-
-    /**
-     * Método SET para o atributo {@link Car#numero_edges}.
-     * @param numero_edges {@link Integer} contendo o valor a ser inserido no atributo.
-     */
-    public void setNumEdges(int numero_edges) {
-        this.numero_edges = numero_edges;
     }
 }

@@ -1,11 +1,5 @@
 package io.sim;
 
-import java.util.Random;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-
 /**
  * Classe para realizar a Criptografia do arquivo JSON a ser enviado através da comunicação Cliente/Servidor.
  * 

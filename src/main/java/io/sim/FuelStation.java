@@ -6,14 +6,14 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
 
-/*
- * "Fuel Station", devendo conter as seguintes características:
- *      -> Deve ser uma Thread (CONCLUÍDO)
- *      -> Deve ser cliente do AlphaBank
- *      -> Deve possuir uma conta no AlphaBank
- *      -> Deve existir, no máximo, duas bombas de abastecimento
- *      -> Deve incrementar o atributo "FuelTank" do Car
- *      -> O processo de abastecer leva 2 minutos.
+/**
+ * Classe que visa simular o funcionamento de um Posto de Gasolina (Fuel Station), sendo responsável por
+ * abastecer os veículos que encontrem-se com menos de 3L de combustível. Entretanto, há apenas duas
+ * bombas disponíveis, sendo que se amabs estiverem ocupadas o carro deverá aguardar.
+ * 
+ * @author Gustavo Henrique Tostes
+ * @version 1.0
+ * @since 18/10/2023
  */
 public class FuelStation extends Thread {
 
@@ -23,6 +23,7 @@ public class FuelStation extends Thread {
     private static Writer ouw;
     private static BufferedWriter bfw;
 
+    //Relativo ao acesso da Account.
     private static final String login = "FuelStation";
     private static final String senha = "fuel_station";
 
@@ -59,7 +60,7 @@ public class FuelStation extends Thread {
                 wait();
             }
 
-            System.out.println("veio aqui....");
+            System.out.println("Abastecendo...");
 
             bombas_ocupadas++;
 
@@ -72,7 +73,7 @@ public class FuelStation extends Thread {
 
             this.abastecendo = false;
 
-            System.out.println("abasteceu....");
+            System.out.println("Deixando o posto...");
 
             notify();
         } catch (Exception e) {
@@ -81,6 +82,10 @@ public class FuelStation extends Thread {
         
     }
 
+    /**
+     * Método GET para o atributo {@link FuelStation#abastecendo}.
+     * @return {@link Boolean} indicando o valor contido no atributo.
+     */
     public boolean getAbastecendo() {
         return this.abastecendo;
     }
@@ -100,11 +105,16 @@ public class FuelStation extends Thread {
             ou = socket.getOutputStream();
             ouw = new OutputStreamWriter(ou);
             bfw = new BufferedWriter(ouw);
-            bfw.write(login + " " + senha + "\r\n");
+
+            JsonFile jsonFile = new JsonFile();
+            jsonFile.enviarConexao(login, senha);
+            String criptografa = new Criptografia().criptografa(jsonFile.getJSONAsString());
+
+            bfw.write(criptografa + "\r\n");
             bfw.flush();
 
         } catch (Exception e) {
-            System.out.println("1Erro na conexão com o Servidor Alpha Bank.\nException: " + e);
+            System.out.println("Erro na conexão com o Servidor Alpha Bank. Conectando novamente...");
             conectar();
         }
         
