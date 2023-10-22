@@ -309,6 +309,7 @@ public class Car extends Vehicle implements Runnable{
 
         return dist_metros;
     }
+
     /**
      * Converte o consumo de combustível, sendo que a medida é dada em mg/s. Leva-se em consideração
      * o tempo de aquisição ({@link Car#acquisitionRate}).
@@ -411,6 +412,10 @@ public class Car extends Vehicle implements Runnable{
 
     public boolean getFlag() {
         return this.flag_try_catch;
+    }
+
+    public String getID() {
+        return this.ID;
     }
 
     /**

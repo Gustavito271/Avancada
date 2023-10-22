@@ -137,8 +137,6 @@ public class Driver extends Thread{
             this.carro.stopThread();
             this.rotas_executadas.add(this.rota_em_execucao);
         }
-        
-        
     }
 
     /**
@@ -165,7 +163,15 @@ public class Driver extends Thread{
                 botPayment.start();
 
                 FuelStation fuelStation = new FuelStation(carro, litros, true);
-                fuelStation.start();
+
+                int bomba_permitida = FuelStation.tentarAbastecer();
+
+                while (bomba_permitida == 0) {
+                    Thread.sleep(200);
+                    bomba_permitida = FuelStation.tentarAbastecer();
+                }
+
+                fuelStation.iniciarThread(bomba_permitida);
 
                 while (fuelStation.getAbastecendo()) {
                     Thread.sleep(200);

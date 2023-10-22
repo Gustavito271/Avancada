@@ -15,7 +15,7 @@ import java.net.Socket;
  * @version 1.0
  * @since 18/10/2023
  */
-public class FuelStation extends Thread {
+public class FuelStation implements Runnable{
 
     //Comunicação Cliente/Servidor
     private static Socket socket;
@@ -27,8 +27,14 @@ public class FuelStation extends Thread {
     private static final String login = "FuelStation";
     private static final String senha = "fuel_station";
 
-    //Número de bombas ocupadas, sendo que o máximo de bombas é 2
-    private static int bombas_ocupadas = 0;
+    //"Flag" para a bomba 1
+    private static boolean bomba1_ocupada = false;
+
+    //Flag para a bomba 2
+    private static boolean bomba2_ocupada = false;
+
+    //Contem a bomba usada pelo carro que está tentando ser abastecido
+    private int bomba_usada;
 
     //Objeto do carro cujo abastecimento está sendo realizado.
     Car carro_abastecendo;
@@ -51,35 +57,57 @@ public class FuelStation extends Thread {
         this.abastecendo = abastecendo;
     }
 
-    //Como os objetos são passados por referencia, tentar passar o carro pra fuel station!! 
-    //Além disso, colocar a conexão da account por referencia.
     @Override
-    public synchronized void run() {
+    public void run() {
         try {
-            while (bombas_ocupadas == 2) {
-                wait();
-            }
-
-            System.out.println("Abastecendo...");
-
-            bombas_ocupadas++;
+            System.out.println(this.carro_abastecendo.getID() + " Abastecendo...");
 
             //Duração do abastecimento.
             Thread.sleep(120000);
 
             carro_abastecendo.abastecerFuelTank(this.litros_abastecer);
 
-            bombas_ocupadas--;
-
             this.abastecendo = false;
 
             System.out.println("Deixando o posto...");
-
-            notify();
+            
+            if (this.bomba_usada == 1) {
+                bomba1_ocupada = false;
+            } else {
+                bomba2_ocupada = false;
+            }
         } catch (Exception e) {
             System.out.println("Falha no abastecimento do veículo");
         }
-        
+    }
+
+    /**
+     * Verifica se é possível abastecer, ou seja, se alguma das duas bombas estão livres.
+     * Caso positivo, retorna o número da bomba que pode ser utilizada (1 ou 2). Caso ambas
+     * as bombas estejam ocupadas, retorna 0.
+     * @return {@link Integer} contendo o número da bomba a ser utilizada // 0 caso as bombas estejam ocupadas.
+     */
+    public synchronized static int tentarAbastecer() {
+        if (!bomba1_ocupada) {
+            bomba1_ocupada = true;
+            return 1;
+        } else if (!bomba2_ocupada) {
+            bomba2_ocupada = true;
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+   
+
+    /**
+     * Inicia a execução da Thread para executar a função do abastecimento.
+     * @param num {@link Integer} contendo o número da bomba a ser utilizada.
+     */
+    public void iniciarThread(int num) {
+        Thread thread = new Thread(this);
+        this.bomba_usada = num;
+        thread.start();
     }
 
     /**
@@ -89,6 +117,7 @@ public class FuelStation extends Thread {
     public boolean getAbastecendo() {
         return this.abastecendo;
     }
+
 
     public static void main(String[] args) {
         conectar();
@@ -119,5 +148,4 @@ public class FuelStation extends Thread {
         }
         
     }
-    
 }
