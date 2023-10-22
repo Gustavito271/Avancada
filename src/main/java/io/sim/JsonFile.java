@@ -215,7 +215,7 @@ public class JsonFile {
      * Escreve um objeto do tipo {@link ArrayList}<Route> dentro do arquivo JSON.
      * @param routes {@link ArrayList} contendo as rotas a serem inseridas.
      */
-    public void escreveRoutes(ArrayList<Rota> routes) {
+    public void escreveRoutes(ArrayList<Route> routes) {
         JSONArray arrayID = new JSONArray();
         JSONArray arrayEdges = new JSONArray();
 
@@ -232,14 +232,14 @@ public class JsonFile {
      * Método GET para rotas presentes em um {@link JSONArray} dentro de um JSONObject
      * @return {@link ArrayList}<Route> contendo as informações necessárias.
      */
-    public ArrayList<Rota> recebeRoutes() {
-        ArrayList<Rota> routes = new ArrayList<>();
+    public ArrayList<Route> recebeRoutes() {
+        ArrayList<Route> routes = new ArrayList<>();
         
         JSONArray idArray = (JSONArray) this.object.get(key_ID_rotas);
         JSONArray edgeArray = (JSONArray) this.object.get(key_edges_rotas);
         
         for (int i = 0; i < idArray.length(); i++) {
-            Rota rota = new Rota(idArray.getString(i), edgeArray.getString(i));
+            Route rota = new Route(idArray.getString(i), edgeArray.getString(i));
             routes.add(rota);
         }
 

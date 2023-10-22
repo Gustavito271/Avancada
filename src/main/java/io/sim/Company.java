@@ -31,9 +31,9 @@ import org.w3c.dom.NodeList;
  */
 public class Company extends Thread {
     //Conjunto de rotas: Prontas para serem executas // Em execução // Já foram executadas
-    private static ArrayList<Rota> rotas_prontas;
-    private static ArrayList<Rota> rotas_em_execucao;
-    private static ArrayList<Rota> rotas_executadas;
+    private static ArrayList<Route> rotas_prontas;
+    private static ArrayList<Route> rotas_em_execucao;
+    private static ArrayList<Route> rotas_executadas;
     private String idRotaAtual = "";
 
     //Parâmetros de acesso à Account.
@@ -210,9 +210,9 @@ public class Company extends Thread {
     /**
      * Procura por rotas prontas (a serem executadas) no atributo {@link Company#rotas_prontas}.
      * @param idRota {@link String} contendo o ID da rota a ser procurada.
-     * @return {@link Rota} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
+     * @return {@link Route} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
      */
-    private Rota searchRoutePronta(String idRota) {
+    private Route searchRoutePronta(String idRota) {
         for (int i = 0; i < rotas_prontas.size(); i++) {
             if (rotas_prontas.get(i).getIdRoute().equals(idRota)) {
                 return rotas_prontas.get(i);
@@ -226,9 +226,9 @@ public class Company extends Thread {
     /**
      * Procura por rotas prontas (a serem executadas) no atributo {@link Company#rotas_em_execucao}.
      * @param idRota {@link String} contendo o ID da rota a ser procurada.
-     * @return {@link Rota} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
+     * @return {@link Route} contendo o objeto encontrado // Nulo caso nenhuma tenha sido encontrada.
      */
-    private Rota searchRouteEmExecucao(String idRota) {
+    private Route searchRouteEmExecucao(String idRota) {
         for (int i = 0; i < rotas_em_execucao.size(); i++) {
             if (rotas_em_execucao.get(i).getIdRoute().equals(idRota)) {
                 return rotas_em_execucao.get(i);
@@ -246,7 +246,7 @@ public class Company extends Thread {
      * @param bfw {@link BufferedWriter} contendo quem enviou a mensagem (para retorno).
      */
     private void enviarRotas(JsonFile jsonFile, BufferedWriter bfw) {
-        ArrayList<Rota> rotas = new ArrayList<>();
+        ArrayList<Route> rotas = new ArrayList<>();
 
         String[] id = jsonFile.receberRequestRoutes().split("_");
         
@@ -307,7 +307,7 @@ public class Company extends Thread {
     private static void preencheRotasProntas(ArrayList<String> rotas)  {
         for (int i = 0; i < rotas.size(); i++) {
             String id = "Route_" + (i+1);
-            Rota route = new Rota(id, rotas.get(i));
+            Route route = new Route(id, rotas.get(i));
             rotas_prontas.add(route);
         }
     }
@@ -316,7 +316,7 @@ public class Company extends Thread {
      * Método Get() para o atributo {@link Company#rotas_prontas}
      * @return {@link ArrayList} contendo as rotas a serem executadas.
      */
-    public ArrayList<Rota> getRotasProntas() {
+    public ArrayList<Route> getRotasProntas() {
         return rotas_prontas;
     }
 
@@ -324,7 +324,7 @@ public class Company extends Thread {
      * Método Get() para o atributo {@link Company#rotas_em_execucao}
      * @return {@link ArrayList} contendo as rotas em execução.
      */
-    public ArrayList<Rota> getRotasEmExecucao() {
+    public ArrayList<Route> getRotasEmExecucao() {
         return rotas_em_execucao;
     }
 
@@ -332,7 +332,7 @@ public class Company extends Thread {
      * Método Get() para o atributo {@link Company#rotas_executadas}
      * @return {@link ArrayList} contendo as rotas que já foram executadas.
      */
-    public ArrayList<Rota> getRotasExecutadas() {
+    public ArrayList<Route> getRotasExecutadas() {
         return rotas_executadas;
     }
 
@@ -368,7 +368,7 @@ public class Company extends Thread {
     public static void setRotaEmExecucao(String idRoute) {
         for (int i = 0; i < rotas_prontas.size(); i++) {
             if (idRoute.equals(rotas_prontas.get(i).getIdRoute())) {
-                Rota rota = rotas_prontas.get(i);
+                Route rota = rotas_prontas.get(i);
 
                 rotas_em_execucao.add(rota);
                 rotas_prontas.remove(rota);
@@ -385,7 +385,7 @@ public class Company extends Thread {
     public static void setRotaExecutada(String idRoute) {
         for (int i = 0; i < rotas_em_execucao.size(); i++) {
             if (idRoute.equals(rotas_em_execucao.get(i).getIdRoute())) {
-                Rota rota = rotas_em_execucao.get(i);
+                Route rota = rotas_em_execucao.get(i);
 
                 rotas_executadas.add(rota);
                 rotas_em_execucao.remove(rota);

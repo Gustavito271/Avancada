@@ -106,7 +106,7 @@ public class Car extends Vehicle implements Runnable{
      * Método para "pegar" as rotas a serem executadas pelo Driver (owner - dono) do carro em questão.
      * @return {@link ArrayList} contendo as rotas a serem executadas pelo Driver/Car.
      */
-    public ArrayList<Rota> retrieveRoutes() {
+    public ArrayList<Route> retrieveRoutes() {
         enviarPegarRotasServer();
 
         return receberPegarRotasServerServer();
@@ -137,11 +137,11 @@ public class Car extends Vehicle implements Runnable{
     }
 
     /**
-     * Recebe a mensagem do servidor contendo os dados necessários para a construção de uma Rota ({@link Rota}).
+     * Recebe a mensagem do servidor contendo os dados necessários para a construção de uma Rota ({@link Route}).
      * @return {@link ArrayList}<Rota> contendo as rotas "resgatadas" de Company.
      */
-    private ArrayList<Rota> receberPegarRotasServerServer() {
-        ArrayList<Rota> routes = new ArrayList<>();
+    private ArrayList<Route> receberPegarRotasServerServer() {
+        ArrayList<Route> routes = new ArrayList<>();
 
         try {
             Criptografia criptografia = new Criptografia();

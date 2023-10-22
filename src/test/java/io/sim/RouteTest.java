@@ -13,7 +13,7 @@ public class RouteTest {
     public void testeIDRoute() {
         String ID = "Teste Unitario";
 
-        Rota rota = new Rota(ID, null);
+        Route rota = new Route(ID, null);
 
         String resultado = rota.getIdRoute();
 

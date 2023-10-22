@@ -11,7 +11,7 @@ import de.tudresden.sumo.util.SumoCommand;
  * @version 1.0
  * @since 02/10/2023
  */
-public class Rota {
+public class Route {
     //ID da Rota em questão.
     private String id_route;
 
@@ -28,7 +28,7 @@ public class Rota {
      * @param id_route {@link String} contendo o ID da rota.
      * @param edges {@link String}, sendo uma única String contendo todas as Edges.
      */
-    public Rota(String id_route, String edges) {
+    public Route(String id_route, String edges) {
         this.id_route = id_route;
         this.edges = edges;
     }
@@ -61,7 +61,7 @@ public class Rota {
     }
 
     /**
-     * Método GET para o atributo {@link Rota#id_route}.
+     * Método GET para o atributo {@link Route#id_route}.
      * @return {@link String} contendo o ID da rota.
      */
     public String getIdRoute() {
@@ -69,7 +69,7 @@ public class Rota {
     }
 
     /**
-     * Método GET para o atributo {@link Rota#edges}.
+     * Método GET para o atributo {@link Route#edges}.
      * @return {@link String} uma única String contendo todas as edges.
      */
     public String getEdges() {
@@ -77,7 +77,7 @@ public class Rota {
     }
 
     /**
-     * Método GET para o atributo {@link Rota#numero_edges}.
+     * Método GET para o atributo {@link Route#numero_edges}.
      * @return {@link Integer} contendo o número de Edges em uma rota.
      */
     public int getNumeroEdges() {

@@ -22,9 +22,9 @@ public class Driver extends Thread{
 
     //Atributos relativos ao carro.
     private Car carro;
-    private ArrayList<Rota> rotas_prontas;
-    private Rota rota_em_execucao;
-    private ArrayList<Rota> rotas_executadas;
+    private ArrayList<Route> rotas_prontas;
+    private Route rota_em_execucao;
+    private ArrayList<Route> rotas_executadas;
     private String ID;
     
     //Flags
@@ -258,7 +258,7 @@ public class Driver extends Thread{
      * Método GET para as rotas Prontas relativas à esse Driver/Car.
      * @return {@link ArrayList} contendo as rotas.
      */
-    public ArrayList<Rota> getRotas_Prontas() {
+    public ArrayList<Route> getRotas_Prontas() {
         return rotas_prontas;
     }
 
@@ -266,29 +266,29 @@ public class Driver extends Thread{
      * Método GET para as rotas Executadas relativas à esse Driver/Car.
      * @return {@link ArrayList} contendo as rotas.
      */
-    public ArrayList<Rota> getRotas_Executadas() {
+    public ArrayList<Route> getRotas_Executadas() {
         return rotas_executadas;
     }
 
     /**
      * Método GET para a rota em execução relativa à esse Driver/Car.
-     * @return {@link Rota} contendo a rota atual.
+     * @return {@link Route} contendo a rota atual.
      */
-    public Rota getRota_Em_Execucao() {
+    public Route getRota_Em_Execucao() {
         return rota_em_execucao;
     }
 
-    public void setRotas_Prontas(ArrayList<Rota> rotas_prontas) {
+    public void setRotas_Prontas(ArrayList<Route> rotas_prontas) {
         this.rotas_prontas = rotas_prontas;
     }
     
     //Acho que não será usado!!!!
-    public void setRota_Em_Execucao(Rota rota_em_execucao) {
+    public void setRota_Em_Execucao(Route rota_em_execucao) {
         this.rota_em_execucao = rota_em_execucao;
     }
 
     //Acho que não será usado!!!!
-    public void setRotas_Executadas(ArrayList<Rota> rotas_executadas) {
+    public void setRotas_Executadas(ArrayList<Route> rotas_executadas) {
         this.rotas_executadas = rotas_executadas;
     }
 }
