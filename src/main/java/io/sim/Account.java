@@ -27,6 +27,7 @@ public class Account implements Runnable {
     //Objeto da Thread para execução.
     private Thread thread;
 
+    //Flag para demarcar finalização do extrato.
     private boolean completou_transacao = false;
 
     //------------------------------------------------------------------------------------------------
@@ -98,6 +99,16 @@ public class Account implements Runnable {
     }
 
     /**
+     * Método GET para o saldo da conta.
+     * @return {@link Double} contendo o valor do saldo da Account.
+     */
+    public double getSaldo_atual() {
+        this.destino = "-";
+        this.saldo_anterior = this.saldo_atual;
+        return this.saldo_atual;
+    }
+    
+    /**
      * Método GET para o login da conta.
      * @return {@link String} contendo o login do usuário da Account.
      */
@@ -112,16 +123,7 @@ public class Account implements Runnable {
     public String getSenha() {
         return this.senha;
     }
-    
-    /**
-     * Método GET para o saldo da conta.
-     * @return {@link Double} contendo o valor do saldo da Account.
-     */
-    public double getSaldo_atual() {
-        this.destino = "-";
-        this.saldo_anterior = this.saldo_atual;
-        return this.saldo_atual;
-    }
+
 
     /**
      * Método GET para o atributo {@link Account#completou_transacao}.

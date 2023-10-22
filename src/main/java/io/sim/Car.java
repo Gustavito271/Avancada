@@ -54,6 +54,8 @@ public class Car extends Vehicle implements Runnable{
 
     private boolean flag_try_catch = false;
 
+    //-------------------------------------------------------------------------------------------------------
+
     /**
      * Construtor da classe.
      * @param ID {@link String} contendo o ID do carro.
@@ -234,7 +236,6 @@ public class Car extends Vehicle implements Runnable{
                 //}            
             }
         } catch (Exception e) {
-            System.out.println("EH AQUI " + e);
             flag_try_catch = true;
         }
 

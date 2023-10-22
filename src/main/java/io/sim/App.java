@@ -40,8 +40,6 @@ public class App {
         ExportaExcel excel = new ExportaExcel();
         excel.start();
 
-        System.out.println("veio aq");
-
         Company.main(args);
 
         //Inicialização de todos os motoristas e seus carros.
@@ -59,16 +57,12 @@ public class App {
             Driver driver = new Driver(id_driver, IP_driver, car);
             drivers.add(driver);
         }
-        
-        // drivers.get(0).start();
-        // drivers.get(1).start();
-        // drivers.get(32).start();
-        // drivers.get(3).start();
 
-        
         for (int i = 0; i < num_drivers; i++) {
             drivers.get(i).start();
         }
+
+        // drivers.get(32).start();
 
         Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -82,9 +76,12 @@ public class App {
                             System.out.println("SUMO is closed...");
                         }
                     } catch (Exception e) {
+                        controle_sumo = false;
                         System.out.println("Erro no do_timestep.\nException: " + e);
                     }
                 }
+
+                ExportaExcel.setFlag(false);
             }
         });
 
@@ -94,10 +91,12 @@ public class App {
             for (int i = 0; i < num_drivers; i++) {
                 drivers.get(i).join();
             }
+
+            thread.join();
         } catch (Exception e) {
             System.out.println("Erro ao iniciar as Thread dos Drivers.\nException: " + e);
         }
 
-        //ExportaExcel.setFlag(false);
+        
     }
 }

@@ -48,18 +48,6 @@ public class Criptografia {
             chave += "a";
         }
 
-        /*Random randomico = new Random();
-        char[] key = new char[tamanho];
-        for (int i = 0; i < tamanho; i++) {
-            key[i] = (char) randomico.nextInt(132);
-            if ((int) key[i] < 97)  {
-                key[i] = (char) (key[i] + 72);
-            }
-            if ((int) key[i] > 122) {
-                key[i] = (char) (key[i] - 72);
-            }
-        }*/
-
         return chave;
     }
 

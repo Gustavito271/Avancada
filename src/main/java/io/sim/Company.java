@@ -125,7 +125,7 @@ public class Company extends Thread {
             msg = "inicio";
 
             //System.out.println(msg);
-            //Thread.sleep(300);
+            // Thread.sleep(300);
 
             while (msg != null) {
                 msg = bfr.readLine();
@@ -146,7 +146,7 @@ public class Company extends Thread {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

@@ -148,9 +148,8 @@ public class Driver extends Thread{
     private void verificaCombustível() {
         try{
             System.out.print("");
-            if (carro.getFuel_Tank() < 3 && !abastecendo) {
+            if (carro.getFuel_Tank() <= 3 && !abastecendo) {
 
-                System.out.println("Entrou no if do verificaCombustível");
                 this.abastecendo = true;
 
                 double saldo = consultarSaldo();

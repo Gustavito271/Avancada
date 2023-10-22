@@ -15,6 +15,10 @@ import java.util.ArrayList;
 /**
  * Classe que visa simular o funcionamento de um banco (AlphaBank), o qual deve controlar o saldo de Contas-Corrente
  * (Account), bem como realizar pagamentos.
+ * 
+ * @author Gustavo Henrique Tostes
+ * @version 1.0
+ * @since 02/10/2023
  */
 public class AlphaBank extends Thread{
 
@@ -34,6 +38,8 @@ public class AlphaBank extends Thread{
     private InputStreamReader isr;
     private BufferedReader bfr;
 
+    //----------------------------------------------------------------------------------------------------
+    
     /**
      * Construtor do Servidor.
      * @param socket {@link Socket} contendo a instância de comunicação cliente/servidor.
@@ -58,16 +64,7 @@ public class AlphaBank extends Thread{
             BufferedWriter bfw = new BufferedWriter(ouw);
             clientes.add(bfw);
 
-            //msg = bfr.readLine();
             msg = "inicio";
-
-            // String dados[] = msg.split(" ");
-
-            // addAccount(dados[0], dados[1]);
-
-            // //System.out.println(msg);
-
-            // Thread.sleep(200);
 
             while (msg != null) {
                 msg = bfr.readLine();
@@ -100,9 +97,8 @@ public class AlphaBank extends Thread{
                 }
             }   
 
-            }catch (Exception e) {
-            e.printStackTrace();
-    
+        }catch (Exception e) {
+            //e.printStackTrace();
         }
     }
 
