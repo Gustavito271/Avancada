@@ -89,6 +89,12 @@ public class AlphaBank extends Thread{
         }
     }
 
+    /**
+     * Método para acessar as Accounts, sendo que o banco realiza apenas um acesso por vez.
+     * @param comando {@link String} contendo o comando (ação a ser realizada)
+     * @param jsonFile {@link JsonFile} contendo o objeto para utilização dos métodos.
+     * @param bfw {@link BufferedWriter} contendo o destinatário para retorno.
+     */
     private synchronized static void acessarAccount(String comando, JsonFile jsonFile, BufferedWriter bfw) {
         if (comando.equals(Constantes.comando_consulta)) {
             consultarSaldo(jsonFile, bfw);

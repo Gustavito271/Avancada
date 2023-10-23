@@ -76,6 +76,12 @@ public class Account implements Runnable {
         completou_transacao = true;
     }
 
+    /**
+     * Método para escrita do extrato no arquivo de relatório. Projetado para não permitir acessos
+     * simultâneos pelas Threads.
+     * @param arrayList {@link ArrayList} contendo os dados a serem inseridos.
+     * @param excel {@link ExportaExcel} contendo o objeto para manipulação do arquivo.
+     */
     private static synchronized void extrato(ArrayList<Object> arrayList, ExportaExcel excel) {
         excel.escreveExtrato(arrayList);
     }
