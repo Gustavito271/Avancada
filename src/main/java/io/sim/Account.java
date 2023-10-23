@@ -71,9 +71,13 @@ public class Account implements Runnable {
         arrayList.add(this.saldo_anterior);
         arrayList.add(this.saldo_atual);
 
-        excel.escreveExtrato(arrayList);
+        extrato(arrayList, excel);
 
         completou_transacao = true;
+    }
+
+    private static synchronized void extrato(ArrayList<Object> arrayList, ExportaExcel excel) {
+        excel.escreveExtrato(arrayList);
     }
 
     /**

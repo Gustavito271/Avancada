@@ -25,9 +25,6 @@ public class AlphaBank extends Thread{
     //ArrayList contendo todas as Accounts dos clientes do banco.
     private static ArrayList<Account> accounts;
 
-    //Flag para analisar se o banco está realizando operações em alguma Account.
-    private static boolean is_consulting = false;
-
     //ArrayList contendo os clientes do banco (AlphaBank).
     private static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 
@@ -56,7 +53,7 @@ public class AlphaBank extends Thread{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         try{
             String msg;
             OutputStream ou =  this.socket_servidor.getOutputStream();
@@ -69,14 +66,6 @@ public class AlphaBank extends Thread{
             while (msg != null) {
                 msg = bfr.readLine();
 
-                while (is_consulting) {
-                    try {
-                        wait();
-                    } catch (Exception e) {
-                        System.out.println("Falha no Wait do ConsultarSaldo.\nException: " + e);
-                    }
-                }
-
                 Criptografia criptografia = new Criptografia();
                 
                 String decriptografa = criptografia.decriptografa(msg);
@@ -85,10 +74,8 @@ public class AlphaBank extends Thread{
 
                 String comando = jsonFile.getComando();
 
-                if (comando.equals(Constantes.comando_consulta)) {
-                    consultarSaldo(jsonFile, bfw);
-                } else if (comando.equals(Constantes.comando_pagar)) {
-                    realizarPagamento(jsonFile, bfw);          
+                if (comando.equals(Constantes.comando_consulta) || comando.equals(Constantes.comando_pagar)) {
+                    acessarAccount(comando, jsonFile, bfw);
                 } else if (comando.equals(Constantes.comando_conexao)) {
                     String dados[] = jsonFile.receberConexao();
                     addAccount(dados[0], dados[1]);
@@ -102,14 +89,20 @@ public class AlphaBank extends Thread{
         }
     }
 
+    private synchronized static void acessarAccount(String comando, JsonFile jsonFile, BufferedWriter bfw) {
+        if (comando.equals(Constantes.comando_consulta)) {
+            consultarSaldo(jsonFile, bfw);
+        } else if (comando.equals(Constantes.comando_pagar)) {
+            realizarPagamento(jsonFile, bfw);      
+        }
+    }
+
     /**
      * Faz a consulta do saldo da conta requisitada
      * @param jsonFile {@link JsonFile} contendo o objeto para utilização dos métodos.
      * @param bfw {@link BufferedWriter} contendo o destinatário para retorno.
      */
-    private synchronized void consultarSaldo(JsonFile jsonFile, BufferedWriter bfw) {
-        is_consulting = true;
-
+    private synchronized static void consultarSaldo(JsonFile jsonFile, BufferedWriter bfw) {
         ArrayList<String> dados = jsonFile.recebeConsultaSaldo();
 
         String login = dados.get(0);
@@ -127,17 +120,22 @@ public class AlphaBank extends Thread{
 
         Criptografia criptografia = new Criptografia();
 
+        while (!account.getCompletouTransacao()) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+
+            }
+        }
+
         try {
             bfw.write(criptografia.criptografa(json) +"\r\n");
             bfw.flush();
         } catch (Exception e) {
             System.out.println("Erro na escrita da consulta do saldo.\nException: " + e);
         }
+
         //}
-
-        is_consulting = false;
-
-        notifyAll();
     }
 
     /**
@@ -145,9 +143,7 @@ public class AlphaBank extends Thread{
      * @param jsonFile {@link JsonFile} contendo o objeto para utilização dos métodos.
      * @param bfw {@link BufferedWriter} contendo o destinatário para retorno.
      */
-    private synchronized void realizarPagamento(JsonFile jsonFile, BufferedWriter bfw) {
-        is_consulting = true;
-
+    private synchronized static void realizarPagamento(JsonFile jsonFile, BufferedWriter bfw) {
         ArrayList<Object> dadosJSON = jsonFile.recebeDadosPagamento();
 
         String login = (String) dadosJSON.get(0);
@@ -176,8 +172,8 @@ public class AlphaBank extends Thread{
 
         //System.out.println(account_destino.getSaldo());
         
-        is_consulting = false;
-        notify();
+        // is_consulting = false;
+        //notify();
     }
     
     /**
@@ -207,7 +203,7 @@ public class AlphaBank extends Thread{
      * @param is_paying {@link Boolean} contendo uma identificação para saber se é pagamento ou não.
      * @return {@link Account} contendo a Account procurada // null caso nenhuma Account seja encontrada.
      */
-    private Account searchAccount(String login, String senha, boolean is_paying) {
+    private static Account searchAccount(String login, String senha, boolean is_paying) {
         for (int i = 0; i< accounts.size(); i++) {
             Account account = accounts.get(i);
             if (account.getLogin().equals(login)) {

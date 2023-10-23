@@ -18,7 +18,7 @@ public class App {
 
         SumoTraciConnection sumo;
         String sumo_bin = "sumo-gui";		
-		String config_file = "sim/map/map.sumo.cfg";
+		String config_file = "map/map.sumo.cfg";
 		
 		// Sumo connection
 		sumo = new SumoTraciConnection(sumo_bin, config_file);

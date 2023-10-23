@@ -41,7 +41,7 @@ public class Company extends Thread {
     private static final String senha = "company";
 
     //Arquivo contendo as rotas.
-    private static String arquivo = "sim/data/dados2.xml";
+    private static String arquivo = "data/dados2.xml";
 
     //Comunicação Cliente-Servidor
     private static ServerSocket server;
