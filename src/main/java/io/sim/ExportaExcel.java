@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
@@ -198,11 +199,17 @@ public class ExportaExcel extends Thread{
                             FileOutputStream out = new FileOutputStream(new File(Constantes.path_arquivo));
                             workbook.write(out);
                             out.close();
+
+                            FileInputStream inp = new FileInputStream(new File(Constantes.path_arquivo));
+
+                            workbook = new XSSFWorkbook(inp);
+
+                            pasta_dados = workbook.getSheet("Relatorio");
+                            pasta_extratos = workbook.getSheet("Extratos");
+                            
                         } catch (Exception e) {
                             System.out.println("Erro na escrita do arquivo.\nException: " + e);
                         }
-
-                        System.out.println("passou aqui");
                         JOptionPane.showMessageDialog(null, "Baixado com sucesso");
                     } else {
                         flag = false;
