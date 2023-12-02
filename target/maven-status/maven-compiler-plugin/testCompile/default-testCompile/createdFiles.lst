@@ -1,1 +1,5 @@
-io\sim\AppTest.class
+io\sim\JsonFileTest.class
+io\sim\RouteTest.class
+io\sim\AccountTest.class
+io\sim\CarTest.class
+io\sim\CriptografiaTest.class

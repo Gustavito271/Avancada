@@ -64,6 +64,7 @@ public class Driver extends Thread{
 
         @Override
         public void run() {
+            System.out.println("Iniciou a Thread PAGAMENTO_POSTO_" + this.login + " : " + System.nanoTime());       //Novo
             JsonFile jsonFile = new JsonFile();
             Criptografia criptografia = new Criptografia();
 
@@ -77,6 +78,8 @@ public class Driver extends Thread{
             } catch (Exception e) {
                 System.out.println("Erro na escrita do Json com o pagamento para o AlphaBank.\nException: " + e);
             }
+
+            System.out.println("Iniciou a Thread PAGAMENTO_POSTO_" + this.login + " : " + System.nanoTime());       //Novo
         }
     }
 
@@ -98,6 +101,7 @@ public class Driver extends Thread{
 
     @Override
     public void run() {
+        System.out.println("Iniciou a Thread " + this.ID + " : " + System.nanoTime());      //Novo
         this.rotas_prontas = carro.retrieveRoutes();
 
         try {
@@ -108,7 +112,8 @@ public class Driver extends Thread{
             System.out.println("Erro ao inserir as rotas no Sumo.\nException: " + e);
         }
 
-
+        //Para os testes com reconciliação de dados e Escalonamento:
+        // while (this.rotas_executadas.size() < 1) {                                          //Novo
         while (this.rotas_executadas.size() < 9) {
             try {
                 Thread.sleep(500);
@@ -123,6 +128,7 @@ public class Driver extends Thread{
 
             //Inicializa o envio de reports do carro.
             this.carro.setTerminoURota(false);
+            System.out.println("Chamou a Thread CAR" + this.ID + " : " + System.nanoTime());        //Novo
             this.carro.startThread();
 
             while (!this.carro.getTerminouRota()) {
@@ -135,6 +141,8 @@ public class Driver extends Thread{
             }
 
             this.carro.stopThread();
+
+            // System.out.println("Terminou 1!");
             this.rotas_executadas.add(this.rota_em_execucao);
         }
     }
@@ -160,12 +168,15 @@ public class Driver extends Thread{
                 }
 
                 BotPayment botPayment = new BotPayment(this.ID, this.senha, litros);
+                System.out.println("Chamou a Thread PAGAMENTO_POSTO_" + this.ID + " : " + System.nanoTime());
                 botPayment.start();
 
                 FuelStation fuelStation = new FuelStation(carro, litros, true);
 
                 int bomba_permitida = FuelStation.tentarAbastecer();
-
+                
+                System.out.println("Chamou a Thread ABASTECER" + this.carro.getID() + " : " + System.nanoTime());
+                
                 while (bomba_permitida == 0) {
                     Thread.sleep(200);
                     bomba_permitida = FuelStation.tentarAbastecer();

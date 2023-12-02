@@ -10,7 +10,6 @@ import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
-
 import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoColor;
 import de.tudresden.sumo.objects.SumoPosition2D;
@@ -38,9 +37,19 @@ public class Car extends Vehicle implements Runnable{
 
     //Parâmetros do Carro como objeto.
     private String ID;
-    private double fuel_tank = 10;
-    private double distancia_percorrida = 0;
+    private double fuel_tank = 3.01;
+    private double distancia_percorrida;
     private boolean terminou_rota = false;
+
+    //Parâmetros para Reconciliação de Dados.
+    private double last_distance;               //Novo
+    private long last_time = 0;                 //Novo
+    private double[] y = new double[] {760, 51.05, 24.15, 31.98, 32.54, 31.84, 194.38, 32.32, 27.40,
+                                            153.63, 33.0, 43.83, 26.14, 38.51, 44.76, 64.32, 53.90};                //Novo
+    private double[] v = new double[] {0.5, 0.5719, 3.0751, 6.5083, 6.8557, 3.0186, 2545.3587, 11.7552, 17.1524,
+                                          23.1312, 1.0435, 9.5197, 1.2204, 4.5040, 2.9270, 25.4682, 34.9596};       //Novo
+    private double[][] A = new double[][] {{1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};    //Novo
+    double speed = 0;                           //Novo
 
     //Objeto da Thread a ser executada (devido ao implements utilizado)
     private Thread thread = new Thread(this);
@@ -68,6 +77,9 @@ public class Car extends Vehicle implements Runnable{
         this.sumo = sumo;
         this.color = genColor();
         this.tipo_combustivel = combustivel();
+
+        this.distancia_percorrida = 0;                  //Novo
+        this.last_distance = 0;                         //Novo
 
         conectar();
     }
@@ -188,6 +200,7 @@ public class Car extends Vehicle implements Runnable{
      */
     @Override
     public void run() {
+        System.out.println("Iniciou a execução " + this.ID + " : " + System.nanoTime());        //Novo
         try {
             boolean is_stopped = false;
             boolean flag = true, carregou_carros = false;
@@ -207,6 +220,11 @@ public class Car extends Vehicle implements Runnable{
                     arrayList = (SumoStringList) sumo.do_job_get(super.getIDList());
 
                     if (arrayList.size() != 0 && arrayList.contains(this.ID)) {
+                        
+                        if (last_time == 0) {
+                            last_time = System.nanoTime();
+                        }
+
                         double consumo = converteConsumo((double) sumo.do_job_get(super.getFuelConsumption(ID)), is_stopped);
 
                         enviarRelatorio(consumo, is_stopped);
@@ -235,11 +253,14 @@ public class Car extends Vehicle implements Runnable{
                     }
                 //}            
             }
+
+            // System.out.println(distancia_percorrida);
         } catch (Exception e) {
             flag_try_catch = true;
         }
 
         terminou_rota = true;
+        System.out.println("Fim da Thread " + this.ID + " : " + System.nanoTime());         //Novo
     }
 
 
@@ -273,6 +294,17 @@ public class Car extends Vehicle implements Runnable{
                 distancia_percorrida = calculaDistancia(dist);
             }
 
+            long tempo = System.nanoTime();                                 //Novo
+
+            // if (distancia_percorrida - last_distance >= 1) {                //Novo
+            //     last_distance = distancia_percorrida;                       //Novo
+            //     sumo.do_job_set(super.setSpeed(ID, reconcilia(tempo)));     //Novo
+            // }                                                               //Novo
+
+            // if (speed != 0) {                                               //Novo
+            //     sumo.do_job_set(super.setSpeed(ID, speed));                 //Novo
+            // }                                                               //Novo
+
             jsonFile.escreverRelatorio(this.ID, 
                                         (String) sumo.do_job_get(super.getRouteID(ID)),
                                         (double) sumo.do_job_get(super.getSpeed(ID)), 
@@ -281,7 +313,7 @@ public class Car extends Vehicle implements Runnable{
                                         tipo_combustivel,
                                         (double) sumo.do_job_get(super.getCO2Emission(ID)),
                                         latitude, longitude,
-                                        System.nanoTime());
+                                        tempo);
 
             String json = jsonFile.getJSONAsString();
             Criptografia criptografia = new Criptografia();
@@ -432,5 +464,102 @@ public class Car extends Vehicle implements Runnable{
      */
     public void abastecerFuelTank(double fuel_tank) {
         this.fuel_tank += fuel_tank;
+    }
+
+    //----------------------------------- Novo ----------------------------------------
+
+    /**
+     * Realiza a reconciliação dos dados baseado no trecho percorrido de 1km.
+     * @param tempo {@link Long} contendo o tempo entre a medição anterior/inicial e a atual.
+     * @return {@link Double} contendo a velocidade a ser utilizada pelo carro.
+     */
+    private double reconcilia(long tempo) {
+        long auxT = (tempo - last_time)/1000000000;
+
+        y = ajustaVetor(y, auxT);
+        v = ajustaVetor(v);
+        A = ajustaVetor(A);
+
+        Reconciliation rec = new Reconciliation(y, v, A);
+        double[] res = rec.getReconciledFlow();
+
+        // System.out.println("Tempo atual: " + tempo/1000000000.00);
+        // System.out.println("Tempo anterior: " + last_time/1000000000.00);
+        // System.out.println("Tempo resultante: " + res[0] + " " + res[1]);
+        // System.out.println("Velocidade: " + 1000/res[1]);
+
+        y = res;
+
+        last_time = tempo;
+
+        ExportaExcel excel = new ExportaExcel();
+        excel.escreveRecon(res);
+
+        return 1000/res[1];
+    }
+
+    /**
+     * Ajusta o vetor y, considerando o tempo percorrido e, consequentemente, o restante.
+     * @param vetor {@link Double[]} contendo o vetor a ser ajustado.
+     * @param tempo {@link Long} contendo o tempo passado.
+     * @return {@link Double[]} contendo o vetor ajustado (com uma posição a menos).
+     */
+    private double[] ajustaVetor(double[] vetor, long tempo) {
+        int tamN = vetor.length - 1;
+        double[] aux = new double[tamN];
+
+        aux[0] = vetor[0] - tempo;
+
+        for (int i = 1; i < tamN; i++) {
+            aux[i] = vetor[i+1];
+        }
+
+        if (tamN >= 2) {
+            aux[1] += (vetor[1] - tempo);
+        }
+
+        vetor = null;
+        
+        return aux;
+    }
+
+    /**
+     * Ajusta o vetor, basicamente excluindo a posição 1.
+     * @param vetor {@link Double[]} contendo o vetor a ser ajustado.
+     * @return {@link Double[]} contendo o vetor ajustado (com uma posição a menos).
+     */
+    private double[] ajustaVetor(double[] vetor) {
+        int tamN = vetor.length - 1;
+        double[] aux = new double[tamN];
+
+        aux[0] = vetor[0];
+
+        for (int i = 1; i < tamN; i++) {
+            aux[i] = vetor[i+1];
+        }
+
+        vetor = null;
+        
+        return aux;
+    }
+
+    /**
+     * Ajusta a matriz, basicamente excluindo a posição [0][1].
+     * @param vetor {@link Double[][]} contendo a matriz a ser ajustada.
+     * @return {@link Double[][]} contendo a matriz ajustada (com uma posição a menos).
+     */
+    private double[][] ajustaVetor(double[][] vetor) {
+        int tamN = vetor[0].length - 1;
+        double[][] aux = new double[1][tamN];
+
+        aux[0][0] = vetor[0][0];
+
+        for (int i = 1; i < tamN; i++) {
+            aux[0][i] = vetor[0][i+1];
+        }
+
+        vetor = null;
+        
+        return aux;
     }
 }

@@ -60,6 +60,7 @@ public class FuelStation implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("Iniciou a Thread ABASTECER " + this.carro_abastecendo.getID() + " : " + System.nanoTime());     //Novo
             System.out.println(this.carro_abastecendo.getID() + " Abastecendo...");
 
             //Duração do abastecimento.
@@ -76,6 +77,8 @@ public class FuelStation implements Runnable{
             } else {
                 bomba2_ocupada = false;
             }
+
+            System.out.println("Terminou a Thread ABASTECER " + this.carro_abastecendo.getID() + " : " + System.nanoTime());    //Novo
         } catch (Exception e) {
             System.out.println("Falha no abastecimento do veículo");
         }

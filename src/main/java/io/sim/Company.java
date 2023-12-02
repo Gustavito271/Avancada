@@ -75,6 +75,7 @@ public class Company extends Thread {
 
         @Override
         public void run() {
+            System.out.println("Iniciou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());      //Novo
             JsonFile jsonFile = new JsonFile();
             Criptografia criptografia = new Criptografia();
 
@@ -88,6 +89,8 @@ public class Company extends Thread {
             } catch (Exception e) {
                 System.out.println("Erro na escrita do Json com o pagamento para o AlphaBank.\nException: " + e);
             }
+
+            System.out.println("Terminou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());     //Novo
         }
     }
 
@@ -174,19 +177,29 @@ public class Company extends Thread {
 
         if (distancia < distancia_paga) {
             distancia_paga = 0;
+            
+            // //Gerar Excel com os dados!
+            // ExportaExcel excel = new ExportaExcel();
+            // excel.escreveRelatorio(arrayList);
         } else {
             if (distancia - distancia_paga >= 1) {
                 distancia_paga = distancia;
                 String idDriver = "Driver_" + idCarro.split("_")[1];
                 BotPayment botPayment = new BotPayment(idDriver, login, senha);
+                System.out.println("Chamou a Thread PAGAMENTO" + idDriver + " : " + System.nanoTime());
                 botPayment.start();
+
+                // //Gerar Excel com os dados!
+                // System.out.println("Completou 1km");
+                // ExportaExcel excel = new ExportaExcel();
+                // excel.escreveRecon(arrayList);
             }
         }
 
         //Gerar Excel com os dados!
         ExportaExcel excel = new ExportaExcel();
         excel.escreveRelatorio(arrayList);
-        //excel.start();
+        excel.start();
     }
 
     /**

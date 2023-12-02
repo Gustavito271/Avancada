@@ -25,5 +25,5 @@ public class Constantes {
 
     public static final String comando_pagar = "pagar";
 
-    public static final String path_arquivo = "C:/Users/User/Documents/Relatorios/Dados Gerenciais.xlsx";
+    public static final String path_arquivo = "Relatorios/Dados Gerenciais.xlsx";
 }
