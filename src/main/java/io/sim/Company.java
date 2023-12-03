@@ -75,7 +75,7 @@ public class Company extends Thread {
 
         @Override
         public void run() {
-            System.out.println("Iniciou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());      //Novo
+            // System.out.println("Iniciou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());      //Novo
             JsonFile jsonFile = new JsonFile();
             Criptografia criptografia = new Criptografia();
 
@@ -90,7 +90,7 @@ public class Company extends Thread {
                 System.out.println("Erro na escrita do Json com o pagamento para o AlphaBank.\nException: " + e);
             }
 
-            System.out.println("Terminou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());     //Novo
+            // System.out.println("Terminou a Thread PAGAMENTO" + this.login + " : " + System.nanoTime());     //Novo
         }
     }
 
@@ -186,7 +186,7 @@ public class Company extends Thread {
                 distancia_paga = distancia;
                 String idDriver = "Driver_" + idCarro.split("_")[1];
                 BotPayment botPayment = new BotPayment(idDriver, login, senha);
-                System.out.println("Chamou a Thread PAGAMENTO" + idDriver + " : " + System.nanoTime());
+                // System.out.println("Chamou a Thread PAGAMENTO" + idDriver + " : " + System.nanoTime());
                 botPayment.start();
 
                 // //Gerar Excel com os dados!

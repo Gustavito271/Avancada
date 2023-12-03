@@ -62,13 +62,13 @@ public class App {
         //     drivers.get(i).start();
         // }
 
-        //Para a reconciliação de dados.
-        // drivers.get(2).start();                                             //Novo
+        // Para a reconciliação de dados.
+        drivers.get(2).start();                                             //Novo
 
-        System.out.println("Entrou na fila DRIVER 1: " + System.nanoTime());      //Novo
-        drivers.get(0).start();                                             //Novo
-        System.out.println("Entrou na fila DRIVER 4: " + System.nanoTime());      //Novo
-        drivers.get(3).start();                                             //Novo
+        // System.out.println("Entrou na fila DRIVER 1: " + System.nanoTime());      //Novo
+        // drivers.get(0).start();                                             //Novo
+        // System.out.println("Entrou na fila DRIVER 4: " + System.nanoTime());      //Novo
+        // drivers.get(3).start();                                             //Novo
 
         Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -94,12 +94,12 @@ public class App {
         thread.start();
 
         try {                                                                                   //Novo
-            // drivers.get(2).join();                                                        //Novo
-            drivers.get(0).join();                                                        //Novo
-            drivers.get(3).join();                                                        //Novo
+            drivers.get(2).join();                                                        //Novo
+            // drivers.get(0).join();                                                        //Novo
+            // drivers.get(3).join();                                                        //Novo
 
-            System.out.println("Terminou a Thread DRIVER_1" + " : " + System.nanoTime());       //Novo
-            System.out.println("Terminou a Thread DRIVER_4" + " : " + System.nanoTime());       //Novo
+            // System.out.println("Terminou a Thread DRIVER_1" + " : " + System.nanoTime());       //Novo
+            // System.out.println("Terminou a Thread DRIVER_4" + " : " + System.nanoTime());       //Novo
 
         } catch (Exception e) {                                                                 //Novo
             System.out.println("Erro ao dar o Join");                                         //Novo

@@ -37,7 +37,8 @@ public class Car extends Vehicle implements Runnable{
 
     //Parâmetros do Carro como objeto.
     private String ID;
-    private double fuel_tank = 3.01;
+    private double fuel_tank = 10;
+    // private double fuel_tank = 3.01;                 //Novo
     private double distancia_percorrida;
     private boolean terminou_rota = false;
 
@@ -200,7 +201,7 @@ public class Car extends Vehicle implements Runnable{
      */
     @Override
     public void run() {
-        System.out.println("Iniciou a execução " + this.ID + " : " + System.nanoTime());        //Novo
+        // System.out.println("Iniciou a execução " + this.ID + " : " + System.nanoTime());        //Novo
         try {
             boolean is_stopped = false;
             boolean flag = true, carregou_carros = false;
@@ -260,7 +261,7 @@ public class Car extends Vehicle implements Runnable{
         }
 
         terminou_rota = true;
-        System.out.println("Fim da Thread " + this.ID + " : " + System.nanoTime());         //Novo
+        // System.out.println("Fim da Thread " + this.ID + " : " + System.nanoTime());         //Novo
     }
 
 
@@ -296,14 +297,14 @@ public class Car extends Vehicle implements Runnable{
 
             long tempo = System.nanoTime();                                 //Novo
 
-            // if (distancia_percorrida - last_distance >= 1) {                //Novo
-            //     last_distance = distancia_percorrida;                       //Novo
-            //     sumo.do_job_set(super.setSpeed(ID, reconcilia(tempo)));     //Novo
-            // }                                                               //Novo
+            if (distancia_percorrida - last_distance >= 1) {                //Novo
+                last_distance = distancia_percorrida;                       //Novo
+                sumo.do_job_set(super.setSpeed(ID, reconcilia(tempo)));     //Novo
+            }                                                               //Novo
 
-            // if (speed != 0) {                                               //Novo
-            //     sumo.do_job_set(super.setSpeed(ID, speed));                 //Novo
-            // }                                                               //Novo
+            if (speed != 0) {                                               //Novo
+                sumo.do_job_set(super.setSpeed(ID, speed));                 //Novo
+            }                                                               //Novo
 
             jsonFile.escreverRelatorio(this.ID, 
                                         (String) sumo.do_job_get(super.getRouteID(ID)),
@@ -486,7 +487,7 @@ public class Car extends Vehicle implements Runnable{
         // System.out.println("Tempo atual: " + tempo/1000000000.00);
         // System.out.println("Tempo anterior: " + last_time/1000000000.00);
         // System.out.println("Tempo resultante: " + res[0] + " " + res[1]);
-        // System.out.println("Velocidade: " + 1000/res[1]);
+        System.out.println("Velocidade sugerida: " + 1000/res[1]);
 
         y = res;
 
@@ -504,7 +505,7 @@ public class Car extends Vehicle implements Runnable{
      * @param tempo {@link Long} contendo o tempo passado.
      * @return {@link Double[]} contendo o vetor ajustado (com uma posição a menos).
      */
-    private double[] ajustaVetor(double[] vetor, long tempo) {
+    public double[] ajustaVetor(double[] vetor, long tempo) {
         int tamN = vetor.length - 1;
         double[] aux = new double[tamN];
 
@@ -528,7 +529,7 @@ public class Car extends Vehicle implements Runnable{
      * @param vetor {@link Double[]} contendo o vetor a ser ajustado.
      * @return {@link Double[]} contendo o vetor ajustado (com uma posição a menos).
      */
-    private double[] ajustaVetor(double[] vetor) {
+    public double[] ajustaVetor(double[] vetor) {
         int tamN = vetor.length - 1;
         double[] aux = new double[tamN];
 
@@ -548,7 +549,7 @@ public class Car extends Vehicle implements Runnable{
      * @param vetor {@link Double[][]} contendo a matriz a ser ajustada.
      * @return {@link Double[][]} contendo a matriz ajustada (com uma posição a menos).
      */
-    private double[][] ajustaVetor(double[][] vetor) {
+    public double[][] ajustaVetor(double[][] vetor) {
         int tamN = vetor[0].length - 1;
         double[][] aux = new double[1][tamN];
 

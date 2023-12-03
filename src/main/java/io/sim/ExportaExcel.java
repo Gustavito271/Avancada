@@ -151,6 +151,8 @@ public class ExportaExcel extends Thread{
         int inicio = 15 - aux2.length;
         int indice = 0;
 
+        dados.add(Double.toString(tempos[0]));
+        
         for (int i = 0; i < 15; i++) {
             if (i >= inicio) {
                 dados.add(Double.toString(aux2[indice]));
@@ -231,7 +233,7 @@ public class ExportaExcel extends Thread{
      * Trecho 02 // Trecho 03 // Trecho 04 // Trecho 05 // Trecho 06 // Trecho 07 // Trecho 08 // Trecho 
      */
     private static void criarCabecalhoRecon() {
-        String[] cabecalho = new String[] {"Trecho 02", "Trecho 03", "Trecho 04", "Trecho 05", "Trecho 06", 
+        String[] cabecalho = new String[] {"Tempo Restante", "Trecho 02", "Trecho 03", "Trecho 04", "Trecho 05", "Trecho 06", 
                                            "Trecho 07", "Trecho 08", "Trecho 09", "Trecho 10", "Trecho 11",
                                            "Trecho 12", "Trecho 13", "Trecho 14", "Trecho 15", "Trecho 16 (Fim)"};
 
